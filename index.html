@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ES Practice Lab</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ES Lab">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="color-scheme" content="dark">
+<style>
+:root{
+  color-scheme: dark;
+  --plane:#0d0d0d;
+  --surface:#1a1a19;
+  --surface-2:#212120;
+  --ink:#ffffff;
+  --ink-2:#c3c2b7;
+  --muted:#898781;
+  --grid:#2c2c2a;
+  --axis:#383835;
+  --border:rgba(255,255,255,0.10);
+  --border-2:rgba(255,255,255,0.16);
+  --accent:#3987e5;
+  --up:#0ca30c;
+  --down:#d03b3b;
+  --warn:#fab219;
+  --serious:#ec835a;
+  --r:10px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html[data-cvd="on"]{ --up:#3987e5; --down:#d95926; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--plane);color:var(--ink);-webkit-text-size-adjust:100%}
+body{font-size:14px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.pos{color:var(--up)} .neg{color:var(--down)} .flat{color:var(--ink-2)}
+
+/* ---------- shell ---------- */
+header.top{position:sticky;top:0;z-index:30;background:rgba(13,13,13,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.top-row{display:flex;align-items:center;gap:10px;padding:8px 12px;flex-wrap:wrap}
+.brand{font-weight:650;letter-spacing:-.01em;font-size:15px;white-space:nowrap}
+.brand span{color:var(--muted);font-weight:400}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface);font-size:12px;white-space:nowrap}
+.chip b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+nav.tabs{display:flex;gap:4px;padding:0 8px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{background:transparent;border:1px solid transparent;color:var(--ink-2);padding:6px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;font-size:13px}
+nav.tabs button:hover{background:var(--surface-2)}
+nav.tabs button[aria-selected="true"]{background:var(--surface);border-color:var(--border-2);color:var(--ink);font-weight:600}
+main{padding:12px;max-width:1400px;margin:0 auto}
+.panel[hidden]{display:none}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.card h3{margin:0 0 10px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ---------- controls ---------- */
+.btn{background:var(--surface-2);border:1px solid var(--border-2);color:var(--ink);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px}
+.btn:hover{background:#2b2b29}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.sm{padding:5px 9px;min-height:30px;font-size:12px}
+.btn.buy{background:var(--up);border-color:transparent;color:#04220a;font-weight:700}
+.btn.sell{background:var(--down);border-color:transparent;color:#2a0606;font-weight:700}
+.btn.flat{background:transparent;border-color:var(--border-2)}
+.btn.primary{background:var(--accent);border-color:transparent;color:#04121f;font-weight:650}
+.btn.wide{width:100%}
+label.lbl{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.03em;text-transform:uppercase}
+input[type=number],input[type=text],input[type=date],select,textarea{background:var(--plane);border:1px solid var(--border-2);border-radius:8px;padding:8px 10px;width:100%;font-variant-numeric:tabular-nums;min-height:38px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.stepper{display:flex;align-items:stretch;gap:0}
+.stepper input{border-radius:0;text-align:center;font-family:var(--mono);font-weight:600}
+.stepper button{background:var(--surface-2);border:1px solid var(--border-2);width:38px;cursor:pointer;font-size:17px;line-height:1}
+.stepper button:first-child{border-radius:8px 0 0 8px;border-right:none}
+.stepper button:last-child{border-radius:0 8px 8px 0;border-left:none}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;user-select:none}
+.switch input{width:auto;min-height:0;accent-color:var(--accent);width:16px;height:16px}
+.seg{display:inline-flex;flex-wrap:nowrap;border:1px solid var(--border-2);border-radius:8px;overflow:hidden;max-width:100%}
+.seg button{background:transparent;border:none;padding:7px 10px;cursor:pointer;color:var(--ink-2);font-size:12px;min-height:34px;white-space:nowrap;flex:0 0 auto}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);font-weight:600}
+
+/* ---------- sim layout ---------- */
+.sim{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start}
+.sim.side{grid-template-columns:1fr 330px}
+.sim.half{grid-template-columns:1fr 1fr}
+@media (max-width:900px){ .sim, .sim.side, .sim.half{grid-template-columns:1fr} }
+.chartwrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.chart-head{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.last{font-family:var(--mono);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.chart-head .meta{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#chart{display:block;width:100%;height:520px;touch-action:pan-y}
+#dChart{display:block;width:100%;height:430px}
+@media (max-width:900px){
+  /* size the chart so it and the trading bar share one screen, no scrolling */
+  #chart{height:clamp(200px,calc(100vh - 430px),400px)}
+  #dChart{height:clamp(210px,36vh,340px)}
+  .chart-head{padding:6px 10px;gap:6px}
+  .last{font-size:19px}
+  .chart-head .meta{font-size:11px}
+  .playbar{padding:6px}
+  main{padding:10px 10px 0}
+  .card{padding:11px}
+  nav.tabs button{padding:7px 13px;font-size:13.5px}
+  .seg button{padding:8px 11px;min-height:40px}
+  .tiles{grid-template-columns:repeat(auto-fit,minmax(46%,1fr))}
+  .tile .t-val{font-size:19px}
+  .chip{font-size:11.5px;padding:3px 8px}
+  .switch{font-size:12.5px}
+  #panel-drills > .row.wrap{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px}
+  #panel-drills > .row.wrap::-webkit-scrollbar{display:none}
+  #panel-drills > .row.wrap > *{flex:0 0 auto}
+  #panel-drills .spacer{display:none}
+}
+
+@supports (height:100dvh){
+  @media (max-width:900px){ #chart{height:clamp(200px,calc(100dvh - 430px),400px)} }
+}
+
+/* ---------- one-handed trading bar (phones only) ---------- */
+.mobilebar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
+  flex-direction:column;gap:6px;
+  padding:7px 9px calc(7px + env(safe-area-inset-bottom));
+  background:rgba(13,13,13,.97);backdrop-filter:blur(10px);
+  border-top:1px solid var(--border-2);
+}
+body.mobile-sim .mobilebar{display:flex}
+body.mobile-sim main{padding-bottom:132px}
+.mobilebar .mb-info{display:flex;align-items:center;gap:8px;font-size:12px;min-height:18px}
+.mobilebar .mb-info .num{font-size:12.5px;font-weight:600}
+.mobilebar .mb-row{display:flex;gap:6px}
+.mobilebar .btn{flex:1;min-height:46px;font-size:14px;font-weight:700;padding:8px 4px}
+.mobilebar .btn.narrow{flex:0 0 54px;font-weight:500}
+.mb-step{display:flex;align-items:stretch}
+.mb-step button{background:var(--surface-2);border:1px solid var(--border-2);width:34px;cursor:pointer;font-size:16px;color:var(--ink)}
+.mb-step button:first-child{border-radius:8px 0 0 8px;border-right:none}
+.mb-step button:last-child{border-radius:0 8px 8px 0;border-left:none}
+.mb-step span{background:var(--plane);border:1px solid var(--border-2);border-left:none;border-right:none;
+  min-width:40px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12.5px;font-weight:600}
+#lvlSeg{overflow-x:auto;scrollbar-width:none;max-width:100%}
+#lvlSeg::-webkit-scrollbar{display:none}
+#drillSeg{overflow-x:auto;scrollbar-width:none;max-width:100%}
+#drillSeg::-webkit-scrollbar{display:none}
+.opt{display:block;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--border-2);color:var(--ink);padding:10px 12px;border-radius:9px;cursor:pointer;margin-bottom:8px;line-height:1.35}
+.opt:hover{background:#2b2b29;border-color:rgba(255,255,255,.3)}
+.opt b{display:block;font-size:13.5px;margin-bottom:2px}
+.opt span{font-size:11.5px;color:var(--muted)}
+.opt:disabled{cursor:default;opacity:.55}
+.opt.picked{border-color:var(--accent);opacity:1}
+.opt.right{border-color:var(--up);background:rgba(12,163,12,.10);opacity:1}
+.opt.wrong{border-color:var(--down);background:rgba(208,59,59,.10);opacity:1}
+.tell{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.06);font-size:12.5px}
+.tell:last-child{border-bottom:none}
+.tell .tl{color:var(--muted)}
+.tell .tv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.stopgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.stopcard{border:1px solid var(--border);border-radius:9px;padding:10px 11px;background:var(--plane)}
+.stopcard.mine{border-color:var(--accent);background:rgba(57,135,229,.07)}
+.tell .tw{font-size:10.5px;padding:1px 6px;border-radius:999px;border:1px solid var(--border-2);color:var(--ink-2);white-space:nowrap}
+.tw.t-trap{color:#9bdc9b;border-color:rgba(12,163,12,.5)}
+.tw.t-real{color:#f0a7a7;border-color:rgba(208,59,59,.5)}
+.tw.t-none{color:var(--muted)}
+.playbar{display:flex;gap:6px;align-items:center;padding:8px;border-top:1px solid var(--border);flex-wrap:wrap}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:4px 0;font-size:13px;border-bottom:1px dashed rgba(255,255,255,.06)}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--muted)}
+.kv b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.hint{font-size:11.5px;color:var(--muted);line-height:1.5}
+.banner{padding:8px 10px;border-radius:8px;font-size:12.5px;margin-bottom:8px;border:1px solid}
+.banner.warn{background:rgba(250,178,25,.10);border-color:rgba(250,178,25,.35);color:#f6d38b}
+.banner.stop{background:rgba(208,59,59,.12);border-color:rgba(208,59,59,.4);color:#f0a7a7}
+.banner.ok{background:rgba(12,163,12,.10);border-color:rgba(12,163,12,.35);color:#9bdc9b}
+
+/* ---------- stat tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.tile .t-label{font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.tile .t-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:-.02em}
+.tile .t-sub{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th{position:sticky;top:0;background:var(--surface-2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;z-index:1}
+td:first-child,th:first-child,td.l,th.l{text-align:left}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:1px 7px;border-radius:999px;border:1px solid var(--border-2);font-size:11px;color:var(--ink-2);background:var(--surface-2)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);font-size:13px}
+.mini-canvas{width:100%;height:180px;display:block}
+
+/* ---------- drills ---------- */
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.qtext{font-size:17px;line-height:1.5;margin:0 0 14px}
+.qtext b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.answer-row{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.answer-row input{flex:1;min-width:140px;font-size:18px;font-family:var(--mono);font-weight:600}
+.solution{margin-top:14px;padding:12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;line-height:1.6}
+.solution ol{margin:6px 0 0;padding-left:18px}
+.solution code{font-family:var(--mono);background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px}
+.bar-track{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:3px}
+details{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;background:var(--surface)}
+summary{cursor:pointer;font-weight:600;font-size:13px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--surface-2);border:1px solid var(--border-2);padding:9px 14px;border-radius:999px;font-size:13px;z-index:100;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+body.mobile-sim .toast{bottom:152px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div class="brand">ES Practice Lab <span>· E-mini S&amp;P 500</span></div>
+    <div class="spacer"></div>
+    <div class="chip">Equity <b id="chipEquity">$50,000</b></div>
+    <div class="chip">Day <b id="chipDay" class="flat">$0</b></div>
+    <div class="chip" id="chipPos">Flat</div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="sim">Replay sim</button>
+    <button role="tab" aria-selected="false" data-tab="journal">Journal</button>
+    <button role="tab" aria-selected="false" data-tab="drills">Pattern lab</button>
+    <button role="tab" aria-selected="false" data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<div class="mobilebar" id="mobileBar">
+  <div class="mb-info">
+    <span id="mbPos" class="flat">Flat</span>
+    <span class="spacer"></span>
+    <span id="mbRisk" class="hint"></span>
+  </div>
+  <div class="mb-row">
+    <div class="mb-step" title="Contracts"><button type="button" data-mb="qty-">−</button><span id="mbQty">1</span><button type="button" data-mb="qty+">+</button></div>
+    <button class="btn buy" data-mb="buy">BUY</button>
+    <button class="btn sell" data-mb="sell">SELL</button>
+    <button class="btn flat narrow" data-mb="flatten">Flat</button>
+  </div>
+  <div class="mb-row">
+    <button class="btn flat" data-mb="play" id="mbPlay">▶ Play</button>
+    <button class="btn flat" data-mb="step">Step ▸</button>
+    <button class="btn flat" data-mb="be">Stop→BE</button>
+    <button class="btn flat narrow" data-mb="ticket">⚙</button>
+  </div>
+</div>
+
+<main>
+<div id="jsWarn" class="banner stop" style="margin-bottom:12px">
+  <b>Scripts are blocked in this viewer.</b> The chart, buttons and drills all need JavaScript.
+  Tap the <b>download</b> icon at the top of this preview, then open the saved <b>es-practice-lab.html</b>
+  file in Safari or Chrome (Files → tap the file → Share → open in browser). Everything works there.
+</div>
+<noscript><div class="banner stop" style="margin-bottom:12px">JavaScript is turned off in this browser. Turn it on, or open this file in Safari or Chrome.</div></noscript>
+
+<!-- ============================ SIM ============================ -->
+<section class="panel" id="panel-sim">
+  <div id="simBanner"></div>
+  <div class="sim">
+    <div class="chartwrap">
+      <div class="chart-head">
+        <div class="last" id="lastPx">—</div>
+        <div class="meta" id="barChange">—</div>
+        <div class="spacer"></div>
+        <div class="meta" id="vwapDist"></div>
+        <div class="meta" id="clock">09:30 ET</div>
+        <div class="seg" id="tfSeg">
+          <button data-tf="1" aria-pressed="true">1m</button>
+          <button data-tf="5" aria-pressed="false">5m</button>
+          <button data-tf="15" aria-pressed="false">15m</button>
+        </div>
+      </div>
+      <canvas id="chart"></canvas>
+      <div class="playbar" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 8px">
+        <span class="hint" style="margin-right:2px">Levels</span>
+        <div class="seg" id="lvlSeg">
+          <button data-lvl="vwap" aria-pressed="true">VWAP</button>
+          <button data-lvl="bands" aria-pressed="false">±σ</button>
+          <button data-lvl="or" aria-pressed="true">OR</button>
+          <button data-lvl="pd" aria-pressed="true">PD H/L</button>
+          <button data-lvl="on" aria-pressed="false">O/N H/L</button>
+          <button data-lvl="sess" aria-pressed="false">Sess H/L</button>
+        </div>
+      </div>
+      <div class="playbar">
+        <button class="btn" id="btnPlay" title="Space">▶ Play</button>
+        <button class="btn" id="btnStep" title="Right arrow">Step ▸</button>
+        <div class="seg" id="speedSeg">
+          <button data-sp="1" aria-pressed="false">1×</button>
+          <button data-sp="2" aria-pressed="true">2×</button>
+          <button data-sp="5" aria-pressed="false">5×</button>
+          <button data-sp="20" aria-pressed="false">20×</button>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn" id="btnNewSession">↺ New session</button>
+      </div>
+    </div>
+
+    <aside style="display:grid;gap:12px">
+      <div class="card">
+        <h3>Order ticket</h3>
+        <div class="grid2">
+          <div>
+            <label class="lbl" for="qty">Contracts</label>
+            <div class="stepper">
+              <button type="button" data-step="qty:-1" aria-label="Fewer contracts">−</button>
+              <input id="qty" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
+              <button type="button" data-step="qty:1" aria-label="More contracts">+</button>
+            </div>
+          </div>
+          <div>
+            <label class="lbl" for="stopPts">Stop (pts)</label>
+            <div class="stepper">
+              <button type="button" data-step="stopPts:-1" aria-label="Tighter stop">−</button>
+              <input id="stopPts" type="number" min="0.25" step="0.25" value="6" inputmode="decimal">
+              <button type="button" data-step="stopPts:1" aria-label="Wider stop">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-top:8px">
+          <div>
+            <label class="lbl" for="targetPts">Target (pts)</label>
+            <div class="stepper">
+              <button type="button" data-step="targetPts:-1" aria-label="Nearer target">−</button>
+              <input id="targetPts" type="number" min="0.25" step="0.25" value="12" inputmode="decimal">
+              <button type="button" data-step="targetPts:1" aria-label="Further target">+</button>
+            </div>
+          </div>
+          <div>
+            <label class="lbl" for="setupTag">Setup tag</label>
+            <select id="setupTag">
+              <option>Untagged</option>
+              <option>Trend pullback</option>
+              <option>Breakout</option>
+              <option>Failed breakout</option>
+              <option>Range fade</option>
+              <option>Open drive</option>
+              <option>Reversal</option>
+              <option>Revenge trade</option>
+              <option>FOMO chase</option>
+            </select>
+          </div>
+        </div>
+        <div id="riskPreview" class="hint" style="margin:8px 0 10px"></div>
+        <div class="grid2">
+          <button class="btn buy" id="btnBuy">BUY · B</button>
+          <button class="btn sell" id="btnSell">SELL · S</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn flat sm" id="btnFlatten" style="flex:1">Flatten · F</button>
+          <button class="btn flat sm" id="btnReverse" style="flex:1">Reverse</button>
+          <button class="btn flat sm" id="btnBE" style="flex:1" title="Move stop to entry">Stop→BE</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Position</h3>
+        <div id="posBox"></div>
+      </div>
+
+      <div class="card">
+        <h3>Account</h3>
+        <div class="kv"><span>Equity</span><b id="accEquity">—</b></div>
+        <div class="kv"><span>Realized (session)</span><b id="accRealized">—</b></div>
+        <div class="kv"><span>Open P&amp;L</span><b id="accOpen">—</b></div>
+        <div class="kv"><span>Max drawdown</span><b id="accDD">—</b></div>
+        <div class="kv"><span>Trades / Win rate</span><b id="accTrades">—</b></div>
+      </div>
+
+      <div class="card">
+        <h3>Discipline rules</h3>
+        <div class="grid2">
+          <div>
+            <label class="lbl" for="lossLimit">Daily loss cap ($)</label>
+            <input id="lossLimit" type="number" min="0" step="50" value="600" inputmode="numeric">
+          </div>
+          <div>
+            <label class="lbl" for="maxTrades">Max trades / day</label>
+            <input id="maxTrades" type="number" min="1" step="1" value="6" inputmode="numeric">
+          </div>
+        </div>
+        <label class="switch" style="margin-top:10px"><input type="checkbox" id="enforceRules" checked> Lock me out when a limit is hit</label>
+        <p class="hint" style="margin:8px 0 0">Keys: <b>B</b> buy · <b>S</b> sell · <b>F</b> flatten · <b>Space</b> play/pause · <b>→</b> step one bar.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================ JOURNAL ============================ -->
+<section class="panel" id="panel-journal" hidden>
+  <div class="row wrap" style="margin-bottom:10px">
+    <select id="fltDir" style="width:auto"><option value="">All directions</option><option value="Long">Long only</option><option value="Short">Short only</option></select>
+    <select id="fltTag" style="width:auto"><option value="">All setups</option></select>
+    <select id="fltSrc" style="width:auto"><option value="">Sim + manual</option><option value="sim">Sim only</option><option value="manual">Manual only</option></select>
+    <div class="spacer"></div>
+    <button class="btn sm" id="btnAddTrade">+ Log a trade</button>
+    <button class="btn sm" id="btnExportCsv">Export CSV</button>
+    <button class="btn sm" id="btnExportJson">Save backup</button>
+    <button class="btn sm" id="btnImportJson">Restore</button>
+    <input type="file" id="fileImport" accept=".json" class="sr">
+  </div>
+
+  <div class="tiles" id="statTiles"></div>
+
+  <div class="sim half" style="margin-bottom:12px">
+    <div class="card">
+      <h3>Equity curve (cumulative $)</h3>
+      <canvas id="eqChart" class="mini-canvas"></canvas>
+    </div>
+    <div class="card">
+      <h3>R-multiple distribution</h3>
+      <canvas id="rChart" class="mini-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="sim half" style="margin-bottom:12px">
+    <div class="card">
+      <h3>Expectancy by setup tag</h3>
+      <div id="byTag"></div>
+    </div>
+    <div class="card">
+      <h3>Net P&amp;L by hour of day (ET)</h3>
+      <canvas id="hourChart" class="mini-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="tablewrap" style="border:none;border-radius:0;max-height:460px;overflow-y:auto">
+      <table id="tradesTable">
+        <thead><tr>
+          <th class="l">#</th><th class="l">Time</th><th class="l">Side</th><th class="num">Qty</th>
+          <th class="num">Entry</th><th class="num">Exit</th><th class="num">Pts</th><th class="num">Net $</th>
+          <th class="num">R</th><th class="num">MAE</th><th class="num">MFE</th><th class="l">Exit</th>
+          <th class="l">Setup</th><th class="l">Note</th><th></th>
+        </tr></thead>
+        <tbody id="tradesBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="tradesEmpty">No trades yet. Take some in the replay sim — they land here automatically.</div>
+  </div>
+
+  <details style="margin-top:12px">
+    <summary>How to read these numbers</summary>
+    <div class="hint" style="margin-top:8px;font-size:13px;line-height:1.7">
+      <b>R</b> is the trade's result divided by the money you had at risk when you entered (stop distance × $50 × contracts). Thinking in R instead of dollars is the single fastest way to stop sizing emotionally.<br>
+      <b>Expectancy</b> = average R per trade. Positive means the edge survives your losers. Anything above +0.15R with 50+ trades is a real, tradeable edge.<br>
+      <b>Profit factor</b> = gross wins ÷ gross losses. Below 1.0 you are paying the market to practise; 1.3–1.6 is a solid intraday number.<br>
+      <b>MAE</b> (max adverse excursion) = how far the trade went against you before it worked. If your winners rarely go more than 3 points against you, your stop is probably wider than it needs to be.<br>
+      <b>MFE</b> (max favourable excursion) = how far it went your way. Winners with big MFE and small capture mean you're exiting early.
+    </div>
+  </details>
+</section>
+
+<!-- ============================ PATTERN LAB ============================ -->
+<section class="panel" id="panel-drills" hidden>
+  <div class="row wrap" style="margin-bottom:10px">
+    <div class="seg" id="drillSeg">
+      <button data-mode="mixed" aria-pressed="true">Mixed</button>
+      <button data-mode="support" aria-pressed="false">Support</button>
+      <button data-mode="resistance" aria-pressed="false">Resistance</button>
+      <button data-mode="trend" aria-pressed="false">Trend</button>
+    </div>
+    <div class="spacer"></div>
+    <label class="switch" title="Hide the measurements until after you call it"><input type="checkbox" id="dHard"> Hard mode</label>
+    <div class="chip" id="dReviewChip" hidden>Review queue <b id="dReview">0</b></div>
+    <div class="chip">Reads <b id="dScore">0 / 0</b></div>
+    <div class="chip">Streak <b id="dStreak">0</b></div>
+  </div>
+
+  <div class="sim side">
+    <div class="chartwrap">
+      <div class="chart-head">
+        <div id="dTitle" style="font-weight:650;font-size:14px">Scenario</div>
+        <div class="spacer"></div>
+        <div class="meta" id="dPhase">decision point</div>
+      </div>
+      <canvas id="dChart"></canvas>
+    </div>
+    <aside style="display:grid;gap:12px">
+      <div class="card">
+        <h3>What the tape is telling you</h3>
+        <div id="dFacts"></div>
+      </div>
+      <div class="card">
+        <h3 id="dQTitle">Your read</h3>
+        <div id="dOptions"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="dFeedback" style="margin-top:12px"></div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Accuracy by pattern</h3>
+    <div id="dStats"></div>
+  </div>
+
+  <details style="margin-top:12px">
+    <summary>Anatomy of a failed breakdown (and how it differs from a real one)</summary>
+    <div class="hint" style="margin-top:8px;font-size:13px;line-height:1.75">
+      A <b>failed breakdown</b> is not a pattern you see — it is a <i>sequence</i> you wait for. Price grinds along an obvious low that everyone can see. Resting sell-stops pile up under it. Something pushes price just far enough through to trigger them, those stops become market sell orders, and the traders who wanted to be long down there get filled by that forced selling. Then the selling is finished — because it was never real selling, it was <i>liquidation</i> — and price snaps back into the range. The snap-back is fast precisely because nobody is left to sell.<br><br>
+      The four things that separate a stop run from a real break, all visible at the moment of decision:<br>
+      <b>1. Extension.</b> How far past the level did it travel, measured in ATRs, not points? A stop run rarely needs more than about one ATR. Real repricing runs further because new sellers keep hitting bids.<br>
+      <b>2. Closes.</b> Wicks below a level are noise; <i>closes</i> below it are agreement. One or two closes beyond = still a run. Four, five, six consecutive closes beyond = the market has accepted the new price.<br>
+      <b>3. Volume.</b> A break on ordinary volume is nobody's idea — it is stops. A break on 2× volume that keeps trading heavy is participation.<br>
+      <b>4. Time.</b> Stop runs are quick. The longer price is content to sit beyond the level without bouncing, the more it is telling you it belongs there.<br><br>
+      <b>The trigger matters more than the read.</b> Being right that a breakdown failed is worth nothing if you buy while it is still falling. The entry is the <i>reclaim</i> — the first close back inside the level — and your risk is the low of the sweep. If that low breaks again, you were wrong, cheaply. Traders lose money on this pattern not by misreading it but by front-running it.<br><br>
+      <b>Reversals follow the same logic one level up.</b> An exhaustion reversal needs a stretched, tiring trend (distance from the mean), a climax (range and volume expansion on the final push) and then a trigger (a close back through the climax bar). Two out of three is a losing trade. A trend that is merely "far up" is not a reversal — it is a trend.
+    </div>
+  </details>
+</section>
+
+<!-- ============================ SETTINGS ============================ -->
+<section class="panel" id="panel-settings" hidden>
+  <div class="sim half">
+    <div class="card">
+      <h3>Account &amp; costs</h3>
+      <div class="grid2">
+        <div><label class="lbl" for="setEquity">Starting equity ($)</label><input id="setEquity" type="number" value="50000" step="1000"></div>
+        <div><label class="lbl" for="setComm">Commission per side / contract ($)</label><input id="setComm" type="number" value="2.25" step="0.25"></div>
+        <div><label class="lbl" for="setSlip">Market-order slippage (ticks)</label><input id="setSlip" type="number" value="1" step="1" min="0"></div>
+        <div><label class="lbl" for="setPointVal">Point value ($)</label><input id="setPointVal" type="number" value="50" step="5"></div>
+      </div>
+      <p class="hint" style="margin-top:10px">Set point value to <b>5</b> to practise the micro (MES) instead. Commission and slippage default to realistic retail numbers — leaving them at zero is the fastest way to build a strategy that only works in a simulator.</p>
+    </div>
+
+    <div class="card">
+      <h3>Market generator</h3>
+      <div class="grid2">
+        <div><label class="lbl" for="setBase">Starting price</label><input id="setBase" type="number" value="6850" step="25"></div>
+        <div><label class="lbl" for="setVol">Volatility</label>
+          <select id="setVol"><option value="0.6">Quiet (summer grind)</option><option value="1" selected>Normal</option><option value="1.8">Busy (CPI / FOMC day)</option><option value="3">Wild (news shock)</option></select>
+        </div>
+        <div><label class="lbl" for="setSeed">Seed (blank = random)</label><input id="setSeed" type="text" placeholder="e.g. 42"></div>
+        <div><label class="lbl" for="setOR">Opening range</label>
+          <select id="setOR"><option value="5">First 5 minutes</option><option value="15" selected>First 15 minutes</option><option value="30">First 30 minutes</option></select>
+        </div>
+        <div><label class="lbl" for="setSess">Session length</label>
+          <select id="setSess"><option value="390" selected>Full RTH (6.5 h)</option><option value="150">Morning only (2.5 h)</option><option value="60">Power hour (1 h)</option></select>
+        </div>
+      </div>
+      <p class="hint" style="margin-top:10px">Same seed = same session, so you can replay one day repeatedly and test whether a different plan would have worked. Seed is shown on every new session. VWAP is anchored at the 09:30 open (RTH), the way most ES traders run it, and every level is computed only from bars that have already printed — the chart never knows the future.</p>
+    </div>
+
+    <div class="card">
+      <h3>Display</h3>
+      <label class="switch"><input type="checkbox" id="setCvd"> Colour-blind safe candles (blue / orange)</label>
+      <label class="switch" style="margin-top:8px"><input type="checkbox" id="setHideLevels" > Hide session open / prior close lines</label>
+      <label class="switch" style="margin-top:8px"><input type="checkbox" id="setAutoPause" checked> Auto-pause playback when a position closes</label>
+    </div>
+
+    <div class="card">
+      <h3>Data</h3>
+      <label class="switch"><input type="checkbox" id="setAutosave" checked> Auto-save my journal and stats to this browser</label>
+      <p class="hint" id="saveStatus" style="margin:10px 0 0"></p>
+      <div class="row wrap" style="margin-top:10px">
+        <button class="btn sm" id="btnExportJson2">Save backup file</button>
+        <button class="btn sm" id="btnImportJson2">Restore backup</button>
+        <button class="btn sm" id="btnForget">Forget saved data</button>
+        <button class="btn sm" id="btnResetAll">Reset everything</button>
+      </div>
+      <p class="hint" style="margin-top:10px">Nothing is ever uploaded — this file has no network access. Auto-save writes to your own browser's storage on this device only.</p>
+    </div>
+  </div>
+
+  <details style="margin-top:12px">
+    <summary>What this simulator does and does not teach</summary>
+    <div class="hint" style="margin-top:8px;font-size:13px;line-height:1.7">
+      Synthetic price is built to have the <i>statistical texture</i> of an intraday ES session — volatility clustering, trending and choppy regimes, an active open and close, gaps, and occasional shocks. What it cannot contain is real market context: the actual news, the order flow, the levels other traders are watching. So treat it as a <b>flight simulator for execution and risk habits</b> — order placement, stop discipline, sizing, sitting through noise, not revenge trading — rather than a place to discover a strategy that will then work on the real ES.<br><br>
+      The reference levels are real in the sense that they are computed correctly from the session in front of you — VWAP, the opening range, session and overnight extremes. What synthetic data cannot give you is the <i>reason</i> a level matters on a given day: yesterday's rejection, an economic release, a big seller who keeps showing up at one price. So use the sim to build the habit of always knowing where price is relative to VWAP and the opening range, and get the context from real charts.<br><br>
+      Practising on synthetic data also can't reproduce the psychology of real money at risk, which is the part that breaks most traders. The usual bridge is: build the habits here → run the same rules on live data in a broker demo → trade one micro (MES, $5/point) with real money → scale only after a written, dated log of consistent results.<br><br>
+      Nothing here is trading advice, and futures trading can lose more than you deposit.
+    </div>
+  </details>
+</section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* ============================================================
+   ES Practice Lab — engine
+   ============================================================ */
+
+/* ---------- utilities ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const fmt$ = (v, d) => (v < 0 ? '−' : '') + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: d === undefined ? 2 : d, maximumFractionDigits: d === undefined ? 2 : d });
+const fmtSigned$ = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const sgnClass = (v) => v > 0.0001 ? 'pos' : v < -0.0001 ? 'neg' : 'flat';
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ---------- seeded RNG ---------- */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function hashSeed(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+/* ---------- contract spec ---------- */
+const SPEC = { tick: 0.25, pointValue: 50, commission: 2.25, slipTicks: 1 };
+const roundTick = (p) => Math.round(p / SPEC.tick) * SPEC.tick;
+const px = (p) => p.toFixed(2);
+
+/* ============================================================
+   Synthetic ES session generator
+   ============================================================ */
+const PRE_BARS = 60;           // 08:30–09:30 context
+const SUBSTEPS = 8;            // intrabar path resolution
+
+function generateSession(opts) {
+  const seed = opts.seed;
+  const rnd = mulberry32(seed);
+  let spare = null;
+  function gauss() {
+    if (spare !== null) { const v = spare; spare = null; return v; }
+    let u, v, s;
+    do { u = rnd() * 2 - 1; v = rnd() * 2 - 1; s = u * u + v * v; } while (s >= 1 || s === 0);
+    const mul = Math.sqrt(-2 * Math.log(s) / s);
+    spare = v * mul; return u * mul;
+  }
+
+  const rthMinutes = opts.minutes;
+  const total = PRE_BARS + rthMinutes;
+  const base = opts.base;
+  const volMult = opts.volMult;
+
+  // baseline per-minute sigma in points (~0.025% of price)
+  const sigma0 = base * 0.00026 * volMult;
+
+  // prior settlement, then an overnight drift into the open
+  const priorClose = roundTick(base);
+  const pdRange = priorClose * (0.006 + rnd() * 0.009);
+  const pdLow = roundTick(priorClose - pdRange * (0.15 + rnd() * 0.7));
+  const pdHigh = roundTick(pdLow + pdRange);
+  let price = roundTick(priorClose * (1 + gauss() * 0.0022));
+
+  // regime machine: 0 = chop, 1 = up trend, 2 = down trend
+  let regime = rnd() < 0.5 ? 0 : (rnd() < 0.5 ? 1 : 2);
+  let regimeLeft = 25 + Math.floor(rnd() * 70);
+  let anchor = price;
+  let volState = 1;            // clustered volatility multiplier
+  let shockLeft = 0;
+
+  const bars = [];
+  for (let i = 0; i < total; i++) {
+    const isPre = i < PRE_BARS;
+    const m = i - PRE_BARS;                       // minutes from RTH open
+
+    // time-of-day volatility shape
+    let tod;
+    if (isPre) tod = 0.45 + 0.35 * Math.exp(-(PRE_BARS - i) / 25);
+    else tod = 0.72 + 1.45 * Math.exp(-m / 38) + 0.85 * Math.exp(-(rthMinutes - m) / 34);
+
+    // volatility clustering (AR(1) in logs) + shocks
+    volState = Math.exp(0.9 * Math.log(volState) + 0.22 * gauss());
+    volState = clamp(volState, 0.45, 3.2);
+    if (shockLeft > 0) shockLeft--;
+    else if (!isPre && rnd() < 0.004) { shockLeft = 3 + Math.floor(rnd() * 8); volState *= 2.6 + rnd() * 2; }
+
+    const sigma = sigma0 * tod * volState;
+
+    // regime transitions
+    if (--regimeLeft <= 0) {
+      const r = rnd();
+      regime = r < 0.44 ? 0 : (r < 0.72 ? 1 : 2);
+      regimeLeft = 25 + Math.floor(rnd() * 70);
+      anchor = price;
+    }
+    let drift = 0, revert = 0;
+    if (regime === 0) { drift = 0; revert = 0.055; }
+    else if (regime === 1) { drift = 0.30 * sigma; revert = 0.006; }
+    else { drift = -0.30 * sigma; revert = 0.006; }
+    // trends drag their own anchor along
+    anchor += drift * 0.9;
+
+    // build the intrabar path
+    const path = new Array(SUBSTEPS);
+    let p = price;
+    const stepSig = sigma / Math.sqrt(SUBSTEPS);
+    for (let k = 0; k < SUBSTEPS; k++) {
+      p += drift / SUBSTEPS + stepSig * gauss() + revert * (anchor - p) / SUBSTEPS;
+      path[k] = roundTick(p);
+    }
+    const o = roundTick(price);
+    const c = path[SUBSTEPS - 1];
+    let hi = o, lo = o;
+    for (let k = 0; k < SUBSTEPS; k++) { if (path[k] > hi) hi = path[k]; if (path[k] < lo) lo = path[k]; }
+    // a little wick beyond the sampled path, as real ticks would print
+    hi = roundTick(hi + Math.abs(gauss()) * sigma * 0.18);
+    lo = roundTick(lo - Math.abs(gauss()) * sigma * 0.18);
+
+    const range = hi - lo;
+    const vol = Math.round((900 + 2600 * tod) * (0.55 + range / (sigma * 3 + 0.01) * 0.35) * (0.75 + rnd() * 0.5));
+
+    bars.push({ i, t: minuteToClock(i), o, h: hi, l: lo, c, v: Math.max(60, vol), path, pre: isPre });
+    price = c;
+  }
+
+  return {
+    bars, priorClose, openPrice: bars[PRE_BARS] ? bars[PRE_BARS].o : priorClose,
+    pdHigh: Math.max(pdHigh, priorClose), pdLow: Math.min(pdLow, priorClose),
+    seed, rthStart: PRE_BARS, rthMinutes
+  };
+}
+
+// bar index → wall clock (index 0 = 08:30 ET)
+function minuteToClock(i) {
+  const mins = 8 * 60 + 30 + i;
+  const h = Math.floor(mins / 60) % 24, mm = mins % 60;
+  return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+}
+
+/* ============================================================
+   Application state
+   ============================================================ */
+const S = {
+  session: null,
+  cursor: PRE_BARS,      // number of completed bars
+  sub: 0,                // substep inside the forming bar
+  playing: false,
+  speed: 2,
+  tf: 1,
+  startEquity: 50000,
+  realized: 0,
+  position: null,        // {side, qty, entry, stop, target, mae, mfe, openedBar, tag, riskD}
+  orders: [],
+  trades: [],            // journal
+  sessionTrades: 0,
+  equityPeak: 50000,
+  maxDD: 0,
+  locked: false,
+  lockReason: '',
+  autoPause: true,
+  hideLevels: false,
+  hover: null,
+  timer: null,
+  seedText: ''
+};
+
+const lastPrice = () => {
+  if (!S.session) return 0;
+  const b = S.session.bars[S.cursor];
+  if (!b) return S.session.bars[S.session.bars.length - 1].c;
+  return S.sub === 0 ? S.session.bars[S.cursor - 1].c : b.path[S.sub - 1];
+};
+
+/* forming bar as currently revealed */
+function formingBar() {
+  const b = S.session.bars[S.cursor];
+  if (!b || S.sub === 0) return null;
+  const seen = b.path.slice(0, S.sub);
+  let hi = -Infinity, lo = Infinity;
+  for (const p of seen) { if (p > hi) hi = p; if (p < lo) lo = p; }
+  const o = S.cursor > 0 ? S.session.bars[S.cursor - 1].c : b.o;
+  return { i: b.i, t: b.t, o, h: Math.max(hi, o), l: Math.min(lo, o), c: seen[seen.length - 1], v: 0, forming: true };
+}
+
+/* aggregate completed 1m bars to the display timeframe */
+function displayBars() {
+  const tf = S.tf, out = [];
+  const src = S.session.bars.slice(0, S.cursor);
+  for (let i = 0; i < src.length; i += tf) {
+    const grp = src.slice(i, i + tf);
+    out.push({
+      i: grp[0].i, t: grp[0].t, o: grp[0].o,
+      h: Math.max.apply(null, grp.map(b => b.h)),
+      l: Math.min.apply(null, grp.map(b => b.l)),
+      c: grp[grp.length - 1].c,
+      v: grp.reduce((a, b) => a + b.v, 0)
+    });
+  }
+  const f = formingBar();
+  if (f) {
+    const rem = src.length % tf;
+    if (rem !== 0 && out.length) {
+      const last = out[out.length - 1];
+      last.h = Math.max(last.h, f.h); last.l = Math.min(last.l, f.l); last.c = f.c; last.forming = true;
+    } else out.push(f);
+  }
+  return out;
+}
+
+
+/* ============================================================
+   Session levels — VWAP, opening range, overnight & prior day
+   Computed ONLY from bars already revealed. No lookahead, ever.
+   ============================================================ */
+const LVL = { vwap: true, bands: false, or: true, pd: true, on: false, sess: false };
+
+function computeLevels() {
+  const ses = S.session; if (!ses) return null;
+  const b = ses.bars, rth = ses.rthStart;
+  const done = Math.min(S.cursor, b.length);
+  const orMin = +($('#setOR') ? $('#setOR').value : 15) || 15;
+
+  let pv = 0, vol = 0, pv2 = 0;
+  const vwap = new Array(b.length).fill(null);
+  const sdLine = new Array(b.length).fill(null);
+  let orHi = -Infinity, orLo = Infinity, sHi = -Infinity, sLo = Infinity, sd = 0, lastVwap = null;
+
+  const add = (bar, weight) => {
+    const tp = (bar.h + bar.l + bar.c) / 3, v = Math.max(1, bar.v * weight);
+    pv += tp * v; vol += v; pv2 += tp * tp * v;
+    return pv / vol;
+  };
+
+  for (let i = rth; i < done; i++) {
+    const bar = b[i];
+    const vw = add(bar, 1);
+    vwap[i] = vw; lastVwap = vw;
+    sd = Math.sqrt(Math.max(0, pv2 / vol - vw * vw));
+    sdLine[i] = sd;
+    if (i - rth < orMin) { orHi = Math.max(orHi, bar.h); orLo = Math.min(orLo, bar.l); }
+    sHi = Math.max(sHi, bar.h); sLo = Math.min(sLo, bar.l);
+  }
+  // the bar still forming counts too, weighted by how much of it has traded
+  const f = formingBar();
+  if (f && S.cursor >= rth) {
+    const raw = b[S.cursor];
+    const vw = add({ h: f.h, l: f.l, c: f.c, v: raw ? raw.v : 1 }, S.sub / SUBSTEPS);
+    vwap[S.cursor] = vw; lastVwap = vw;
+    sd = Math.sqrt(Math.max(0, pv2 / vol - vw * vw));
+    sdLine[S.cursor] = sd;
+    if (S.cursor - rth < orMin) { orHi = Math.max(orHi, f.h); orLo = Math.min(orLo, f.l); }
+    sHi = Math.max(sHi, f.h); sLo = Math.min(sLo, f.l);
+  }
+
+  let onHi = -Infinity, onLo = Infinity;
+  for (let i = 0; i < Math.min(rth, done + 1); i++) { onHi = Math.max(onHi, b[i].h); onLo = Math.min(onLo, b[i].l); }
+
+  const barsIntoRth = Math.max(0, Math.min(S.cursor, b.length) - rth);
+  return {
+    vwap: vwap, sdLine: sdLine, sd: sd, last: lastVwap,
+    orHi: isFinite(orHi) ? orHi : null, orLo: isFinite(orLo) ? orLo : null,
+    orLocked: barsIntoRth >= orMin, orMin: orMin,
+    sHi: isFinite(sHi) ? sHi : null, sLo: isFinite(sLo) ? sLo : null,
+    onHi: isFinite(onHi) ? onHi : null, onLo: isFinite(onLo) ? onLo : null,
+    pdHigh: ses.pdHigh, pdLow: ses.pdLow,
+    started: barsIntoRth > 0
+  };
+}
+
+/* ============================================================
+   Chart
+   ============================================================ */
+const cv = $('#chart'), ctx = cv.getContext('2d');
+let CH = { x0: 0, x1: 0, y0: 0, y1: 0, lo: 0, hi: 1, bw: 6, bars: [], w: 0, h: 0 };
+
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function drawChart() {
+  if (!S.session) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  CH.w = w; CH.h = h;
+
+  const padR = 62, padB = 22, padT = 8, padL = 6;
+  const x0 = padL, x1 = w - padR, y0 = padT, y1 = h - padB;
+  const plotW = x1 - x0, plotH = y1 - y0;
+
+  const all = displayBars();
+  const minBW = w < 560 ? 4 : 5.5;
+  const maxBars = Math.max(20, Math.floor(plotW / minBW));
+  const bars = all.slice(Math.max(0, all.length - maxBars));
+  CH.bars = bars;
+  if (!bars.length) return;
+  const LV = computeLevels();
+
+  let lo = Infinity, hi = -Infinity;
+  for (const b of bars) { if (b.l < lo) lo = b.l; if (b.h > hi) hi = b.h; }
+  const P = S.position;
+  if (P) { lo = Math.min(lo, P.stop, P.target); hi = Math.max(hi, P.stop, P.target); }
+  if (!S.hideLevels) {
+    // only let reference levels stretch the scale if they're near the visible action
+    const span = Math.max(hi - lo, 1), mid = (hi + lo) / 2;
+    const cand = [S.session.priorClose, S.session.openPrice];
+    if (LV) {
+      if (LVL.vwap && LV.last != null) cand.push(LV.last);
+      if (LVL.or) cand.push(LV.orHi, LV.orLo);
+      if (LVL.pd) cand.push(S.session.pdHigh, S.session.pdLow);
+      if (LVL.on) cand.push(LV.onHi, LV.onLo);
+    }
+    for (const lv of cand) {
+      if (lv == null || !isFinite(lv)) continue;
+      if (Math.abs(lv - mid) < span * 0.85) { lo = Math.min(lo, lv); hi = Math.max(hi, lv); }
+    }
+  }
+  const pad = Math.max((hi - lo) * 0.08, 1);
+  lo -= pad; hi += pad;
+
+  const bw = plotW / bars.length;
+  const Y = (p) => y1 - (p - lo) / (hi - lo) * plotH;
+  const X = (idx) => x0 + idx * bw + bw / 2;
+  Object.assign(CH, { x0, x1, y0, y1, lo, hi, bw });
+
+  // grid + price axis
+  const gridC = css('--grid'), mutedC = css('--muted'), axisC = css('--axis');
+  const range = hi - lo;
+  let stepP = Math.pow(10, Math.floor(Math.log10(range / 5)));
+  const mult = range / 5 / stepP;
+  stepP *= mult > 5 ? 10 : mult > 2 ? 5 : mult > 1 ? 2 : 1;
+  ctx.font = '11px ' + css('--mono');
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  for (let p = Math.ceil(lo / stepP) * stepP; p < hi; p += stepP) {
+    const y = Y(p);
+    ctx.strokeStyle = gridC; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, Math.round(y) + .5); ctx.lineTo(x1, Math.round(y) + .5); ctx.stroke();
+    ctx.fillStyle = mutedC; ctx.fillText(p.toFixed(stepP < 1 ? 2 : 0), x1 + 7, y);
+  }
+
+  // time axis
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const labelEvery = Math.max(1, Math.round(bars.length / (w < 560 ? 4 : 8)));
+  for (let i = 0; i < bars.length; i++) {
+    if (i % labelEvery !== 0) continue;
+    const x = X(i);
+    ctx.strokeStyle = gridC; ctx.beginPath(); ctx.moveTo(Math.round(x) + .5, y0); ctx.lineTo(Math.round(x) + .5, y1); ctx.stroke();
+    ctx.fillStyle = mutedC;
+    const halfW = ctx.measureText(bars[i].t).width / 2;
+    ctx.fillText(bars[i].t, clamp(x, x0 + halfW, x1 - halfW), y1 + 5);
+  }
+  ctx.strokeStyle = axisC; ctx.beginPath(); ctx.moveTo(x0, y1 + .5); ctx.lineTo(x1, y1 + .5); ctx.stroke();
+
+  // reference levels — the ones ES actually trades around
+  const usedY = [];
+  const roomFor = (y) => { for (const u of usedY) if (Math.abs(u - y) < 11) return false; usedY.push(y); return true; };
+  const refLine = (price, color, label, dashed) => {
+    if (price == null || !isFinite(price) || price < lo || price > hi) return;
+    const y = Math.round(Y(price)) + .5;
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = .85;
+    if (dashed) ctx.setLineDash(dashed);
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    if (!label || !roomFor(y)) return;
+    ctx.font = '10px ' + css('--mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = 'rgba(26,26,25,.9)'; ctx.fillRect(x0 + 2, y - 7, tw + 8, 14);
+    ctx.fillStyle = color; ctx.fillText(label, x0 + 6, y);
+  };
+
+  if (!S.hideLevels) {
+    refLine(S.session.priorClose, '#6f6e68', 'prior close', [5, 4]);
+    if (LV && LV.started) refLine(S.session.openPrice, '#6f6e68', 'RTH open', [5, 4]);
+    if (LVL.pd) { refLine(S.session.pdHigh, '#898781', 'PDH', [7, 4]); refLine(S.session.pdLow, '#898781', 'PDL', [7, 4]); }
+    if (LVL.on && LV) { refLine(LV.onHi, '#9085e9', 'ON high', [4, 4]); refLine(LV.onLo, '#9085e9', 'ON low', [4, 4]); }
+    if (LVL.or && LV) {
+      const tag = LV.orLocked ? '' : ' (forming)';
+      refLine(LV.orHi, '#fab219', LV.orMin + 'm OR high' + tag, [6, 3]);
+      refLine(LV.orLo, '#fab219', LV.orMin + 'm OR low' + tag, [6, 3]);
+    }
+    if (LVL.sess && LV) { refLine(LV.sHi, '#6f6e68', 'session high', [2, 4]); refLine(LV.sLo, '#6f6e68', 'session low', [2, 4]); }
+    // VWAP and its bands are curves, not lines — they move with the session
+    if (LV && LV.started && (LVL.vwap || LVL.bands)) {
+      const curve = (mult, color, width, label, dash) => {
+        ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineJoin = 'round';
+        if (dash) ctx.setLineDash(dash);
+        ctx.beginPath();
+        let on = false, ex = 0, ey = 0;
+        for (let i = 0; i < bars.length; i++) {
+          const src = Math.min(bars[i].i + S.tf - 1, LV.vwap.length - 1);
+          let j = src, v = LV.vwap[j];
+          while (v == null && j > bars[i].i) { j--; v = LV.vwap[j]; }
+          if (v == null) continue;
+          const val = v + mult * (LV.sdLine[j] || 0);
+          const xx = X(i), yy = Y(val);
+          if (!on) { ctx.moveTo(xx, yy); on = true; } else ctx.lineTo(xx, yy);
+          ex = xx; ey = yy;
+        }
+        if (on) ctx.stroke();
+        ctx.setLineDash([]);
+        if (on && label && ey > y0 + 6 && ey < y1 - 6) {
+          ctx.font = (mult === 0 ? 'bold ' : '') + '10px ' + css('--mono');
+          ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+          const tw = ctx.measureText(label).width;
+          ctx.fillStyle = 'rgba(26,26,25,.92)'; ctx.fillRect(ex - tw - 9, ey - 7, tw + 8, 14);
+          ctx.fillStyle = color; ctx.fillText(label, ex - 5, ey);
+        }
+      };
+      if (LVL.bands && LV.sd > 0) {
+        curve(2, 'rgba(57,135,229,.30)', 1, '+2σ', [2, 3]);
+        curve(1, 'rgba(57,135,229,.50)', 1, '+1σ', [2, 3]);
+        curve(-1, 'rgba(57,135,229,.50)', 1, '−1σ', [2, 3]);
+        curve(-2, 'rgba(57,135,229,.30)', 1, '−2σ', [2, 3]);
+      }
+      if (LVL.vwap) curve(0, css('--accent'), 1.6, 'VWAP', null);
+    }
+  }
+
+  // candles
+  const upC = css('--up'), dnC = css('--down');
+  const bodyW = Math.max(1, Math.min(bw * 0.68, 14));
+  for (let i = 0; i < bars.length; i++) {
+    const b = bars[i], x = X(i), up = b.c >= b.o;
+    ctx.strokeStyle = up ? upC : dnC; ctx.fillStyle = up ? upC : dnC;
+    ctx.lineWidth = Math.max(1, Math.min(bodyW * 0.18, 2));
+    ctx.beginPath(); ctx.moveTo(Math.round(x) + .5, Y(b.h)); ctx.lineTo(Math.round(x) + .5, Y(b.l)); ctx.stroke();
+    const yo = Y(b.o), yc = Y(b.c);
+    const top = Math.min(yo, yc), hgt = Math.max(Math.abs(yc - yo), 1.2);
+    ctx.globalAlpha = b.forming ? 0.75 : 1;
+    ctx.fillRect(x - bodyW / 2, top, bodyW, hgt);
+    ctx.globalAlpha = 1;
+  }
+
+  // position overlays
+  if (P) {
+    hLine(Y(P.entry), '#ffffff', (P.side === 'Long' ? 'L' : 'S') + ' ' + P.qty + ' @ ' + px(P.entry), x0, x1, false);
+    hLine(Y(P.stop), dnC, 'stop ' + px(P.stop), x0, x1, true);
+    hLine(Y(P.target), upC, 'target ' + px(P.target), x0, x1, true);
+    // shade risk / reward zones
+    ctx.globalAlpha = 0.07;
+    ctx.fillStyle = dnC; ctx.fillRect(x0, Math.min(Y(P.entry), Y(P.stop)), plotW, Math.abs(Y(P.stop) - Y(P.entry)));
+    ctx.fillStyle = upC; ctx.fillRect(x0, Math.min(Y(P.entry), Y(P.target)), plotW, Math.abs(Y(P.target) - Y(P.entry)));
+    ctx.globalAlpha = 1;
+  }
+
+  // last price tag
+  const lp = lastPrice(), ly = Y(lp);
+  const lastUp = bars.length && lp >= bars[bars.length - 1].o;
+  ctx.fillStyle = lastUp ? upC : dnC;
+  ctx.fillRect(x1 + 1, ly - 9, padR - 2, 18);
+  ctx.fillStyle = '#0d0d0d'; ctx.font = 'bold 11px ' + css('--mono');
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(px(lp), x1 + 6, ly);
+  ctx.setLineDash([2, 3]); ctx.strokeStyle = lastUp ? upC : dnC; ctx.globalAlpha = .5;
+  ctx.beginPath(); ctx.moveTo(x0, ly); ctx.lineTo(x1, ly); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+  // crosshair
+  if (S.hover && S.hover.x > x0 && S.hover.x < x1) {
+    const idx = clamp(Math.floor((S.hover.x - x0) / bw), 0, bars.length - 1);
+    const b = bars[idx];
+    ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(idx), y0); ctx.lineTo(X(idx), y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0, S.hover.y); ctx.lineTo(x1, S.hover.y); ctx.stroke();
+    ctx.setLineDash([]);
+    const pAt = lo + (y1 - S.hover.y) / plotH * (hi - lo);
+    ctx.fillStyle = '#2c2c2a'; ctx.fillRect(x1 + 1, S.hover.y - 8, padR - 2, 16);
+    ctx.fillStyle = '#fff'; ctx.font = '11px ' + css('--mono'); ctx.textAlign = 'left';
+    ctx.fillText(px(pAt), x1 + 6, S.hover.y);
+    const txt = b.t + '  O ' + px(b.o) + '  H ' + px(b.h) + '  L ' + px(b.l) + '  C ' + px(b.c);
+    ctx.font = '11px ' + css('--mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const tw = ctx.measureText(txt).width + 12;
+    ctx.fillStyle = 'rgba(33,33,32,.95)'; ctx.fillRect(x0 + 4, y0 + 4, tw, 18);
+    ctx.fillStyle = '#c3c2b7'; ctx.fillText(txt, x0 + 10, y0 + 8);
+  }
+
+  function hLine(y, color, label, xa, xb, dashed) {
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = dashed ? .8 : .95;
+    if (dashed) ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(xa, Math.round(y) + .5); ctx.lineTo(xb, Math.round(y) + .5); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    ctx.font = '10px ' + css('--mono'); ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillStyle = color; ctx.fillText(label, xa + 4, y - 2);
+  }
+}
+
+/* ============================================================
+   Simulator engine
+   ============================================================ */
+function readSettings() {
+  SPEC.pointValue = +$('#setPointVal').value || 50;
+  SPEC.commission = Math.max(0, +$('#setComm').value || 0);
+  SPEC.slipTicks = Math.max(0, Math.round(+$('#setSlip').value || 0));
+  S.startEquity = +$('#setEquity').value || 50000;
+  S.autoPause = $('#setAutoPause').checked;
+  S.hideLevels = $('#setHideLevels').checked;
+}
+
+function newSession(keepSeed) {
+  readSettings();
+  pause();
+  if (S.position) closePosition(lastPrice(), 'Session end');
+  const seedField = $('#setSeed').value.trim();
+  let seed;
+  if (keepSeed && S.session) seed = S.session.seed;
+  else if (seedField) seed = hashSeed(seedField);
+  else seed = (Math.random() * 4294967295) >>> 0;
+
+  S.session = generateSession({
+    seed,
+    base: +$('#setBase').value || 6850,
+    volMult: +$('#setVol').value || 1,
+    minutes: +$('#setSess').value || 390
+  });
+  S.cursor = PRE_BARS; S.sub = 0;
+  S.realized = 0; S.sessionTrades = 0;
+  S.locked = false; S.lockReason = '';
+  S.seedText = String(seed);
+  renderAll();
+  toast('New session · seed ' + seed);
+}
+
+function play() {
+  if (S.playing || S.cursor >= S.session.bars.length) return;
+  S.playing = true; $('#btnPlay').textContent = '❚❚ Pause';
+  if (typeof syncMobileBar === 'function') syncMobileBar();
+  loop();
+}
+function pause() {
+  S.playing = false; const b = $('#btnPlay'); if (b) b.textContent = '▶ Play';
+  clearTimeout(S.timer);
+  if (typeof syncMobileBar === 'function') syncMobileBar();
+}
+function togglePlay() { S.playing ? pause() : play(); }
+
+function loop() {
+  if (!S.playing) return;
+  advance();
+  const ms = clamp(420 / S.speed, 12, 500);
+  S.timer = setTimeout(loop, ms);
+}
+
+/* advance one substep */
+function advance() {
+  const bars = S.session.bars;
+  if (S.cursor >= bars.length) { pause(); return; }
+  S.sub++;
+  const p = bars[S.cursor].path[S.sub - 1];
+  onPrice(p);
+  if (S.sub >= SUBSTEPS) { S.cursor++; S.sub = 0; }
+  if (S.cursor >= bars.length) {
+    pause();
+    if (S.position) { closePosition(p, 'Session end'); toast('Session over — position closed at the bell.'); }
+    else toast('Session complete.');
+  }
+  renderLive();
+}
+
+/* advance a whole bar */
+function stepBar() {
+  const target = S.sub === 0 ? SUBSTEPS : SUBSTEPS - S.sub;
+  for (let k = 0; k < target; k++) { if (S.cursor >= S.session.bars.length) break; advance(); }
+}
+
+function onPrice(p) {
+  const P = S.position;
+  if (!P) return;
+  const dir = P.side === 'Long' ? 1 : -1;
+  const excursion = (p - P.entry) * dir;
+  if (excursion < P.mae) P.mae = excursion;
+  if (excursion > P.mfe) P.mfe = excursion;
+
+  if (P.side === 'Long') {
+    if (p <= P.stop) return closePosition(roundTick(Math.min(P.stop, p) - SPEC.slipTicks * SPEC.tick), 'Stop');
+    if (p >= P.target) return closePosition(P.target, 'Target');
+  } else {
+    if (p >= P.stop) return closePosition(roundTick(Math.max(P.stop, p) + SPEC.slipTicks * SPEC.tick), 'Stop');
+    if (p <= P.target) return closePosition(P.target, 'Target');
+  }
+}
+
+function ruleCheck() {
+  if (!$('#enforceRules').checked) { S.locked = false; S.lockReason = ''; return; }
+  const cap = +$('#lossLimit').value || 0;
+  const maxT = +$('#maxTrades').value || 0;
+  if (cap > 0 && S.realized <= -cap) { S.locked = true; S.lockReason = 'Daily loss cap of ' + fmt$(cap, 0) + ' hit. Done for the day — that is the rule working, not the rule failing.'; }
+  else if (maxT > 0 && S.sessionTrades >= maxT) { S.locked = true; S.lockReason = 'Trade limit reached (' + maxT + '). Overtrading is the most common way a good morning becomes a bad day.'; }
+}
+
+
+/* how much risk the daily cap still allows */
+function remainingBudget() {
+  if (!$('#enforceRules').checked) return Infinity;
+  const cap = +$('#lossLimit').value || 0;
+  if (cap <= 0) return Infinity;
+  return cap + S.realized;                 // realized is negative when down
+}
+function maxContracts(stopPts) {
+  const rem = remainingBudget();
+  if (rem === Infinity) return 20;
+  return Math.max(0, Math.floor(rem / Math.max(0.01, stopPts * SPEC.pointValue)));
+}
+
+function openPosition(side) {
+  if (!S.session) return;
+  if (S.locked) { toast('Locked out: ' + S.lockReason.split('.')[0]); return; }
+  if (S.cursor >= S.session.bars.length) { toast('Session is over — start a new one.'); return; }
+  if (S.position) { toast('Already ' + S.position.side.toLowerCase() + '. Use Flatten or Reverse.'); return; }
+  const qty = clamp(Math.round(+$('#qty').value || 1), 1, 20);
+  const stopPts = Math.max(SPEC.tick, roundTick(+$('#stopPts').value || 4));
+  const tgtPts = Math.max(SPEC.tick, roundTick(+$('#targetPts').value || 8));
+  // a single trade must not be able to blow through the daily cap
+  const allowed = maxContracts(stopPts);
+  if (qty > allowed) {
+    const rem = remainingBudget();
+    if (allowed === 0) {
+      const fits = Math.floor(rem / SPEC.pointValue / SPEC.tick) * SPEC.tick;
+      toast(fits >= SPEC.tick
+        ? 'Your cap leaves ' + fmt$(rem, 0) + '. One contract on a ' + stopPts + '-point stop risks ' + fmt$(stopPts * SPEC.pointValue, 0) + '. Tighten the stop to ' + fits.toFixed(2) + ' points or fewer — or call it a day.'
+        : 'Your cap leaves ' + fmt$(rem, 0) + ' — not enough for a single contract. The day is done.');
+    } else {
+      toast('Your cap allows ' + allowed + ' contract' + (allowed > 1 ? 's' : '') + ' at a ' + stopPts + '-point stop, not ' + qty + '. Size is set by the cap, not by how you feel about the setup.');
+    }
+    renderRisk();
+    return;
+  }
+
+  const dir = side === 'Long' ? 1 : -1;
+  const raw = lastPrice();
+  const entry = roundTick(raw + dir * SPEC.slipTicks * SPEC.tick);
+  S.position = {
+    side, qty, entry,
+    stop: roundTick(entry - dir * stopPts),
+    target: roundTick(entry + dir * tgtPts),
+    stopPts, tgtPts,
+    mae: 0, mfe: 0,
+    openedBar: S.cursor,
+    openedAt: S.session.bars[Math.min(S.cursor, S.session.bars.length - 1)].t,
+    tag: $('#setupTag').value,
+    riskD: stopPts * SPEC.pointValue * qty
+  };
+  renderLive(); renderSide();
+}
+
+function closePosition(exitPrice, reason) {
+  const P = S.position; if (!P) return;
+  S.position = null;
+  const dir = P.side === 'Long' ? 1 : -1;
+  const pts = roundTick((exitPrice - P.entry) * dir);
+  const gross = pts * SPEC.pointValue * P.qty;
+  const comm = SPEC.commission * 2 * P.qty;
+  const net = gross - comm;
+  const barIdx = Math.min(S.cursor, S.session.bars.length - 1);
+  S.realized += net;
+  S.sessionTrades++;
+  S.trades.push({
+    id: S.trades.length + 1,
+    t: S.session.bars[barIdx].t,
+    openedAt: P.openedAt,
+    side: P.side, qty: P.qty,
+    entry: P.entry, exit: exitPrice,
+    pts, gross, comm, net,
+    riskD: P.riskD,
+    R: P.riskD ? net / P.riskD : null,
+    mae: P.mae, mfe: P.mfe,
+    barsHeld: barIdx - P.openedBar,
+    reason, tag: P.tag, note: '',
+    source: 'sim', seed: S.seedText
+  });
+  ruleCheck();
+  renderAll();
+  saveState();
+  if (S.autoPause) pause();
+  const v = net;
+  toast((v >= 0 ? 'Closed +' : 'Closed −') + '$' + Math.abs(v).toFixed(2) + ' · ' + reason + (P.riskD ? ' · ' + (net / P.riskD).toFixed(2) + 'R' : ''));
+}
+
+function flatten() { if (S.position) closePosition(roundTick(lastPrice() - (S.position.side === 'Long' ? 1 : -1) * SPEC.slipTicks * SPEC.tick), 'Manual'); }
+function reverse() { if (!S.position) return; const s = S.position.side === 'Long' ? 'Short' : 'Long'; flatten(); openPosition(s); }
+function stopToBE() {
+  const P = S.position; if (!P) { toast('No position.'); return; }
+  const dir = P.side === 'Long' ? 1 : -1;
+  if ((lastPrice() - P.entry) * dir <= 0) { toast('Not in profit yet — moving the stop now just tightens your risk for nothing.'); return; }
+  P.stop = P.entry; renderLive(); toast('Stop moved to break-even. R is still measured against your original risk.');
+}
+
+/* ============================================================
+   Rendering — live panels
+   ============================================================ */
+function openPnl() {
+  const P = S.position; if (!P) return 0;
+  const dir = P.side === 'Long' ? 1 : -1;
+  return (lastPrice() - P.entry) * dir * SPEC.pointValue * P.qty;
+}
+function totalNet() { return S.trades.filter(t => t.source === 'sim').reduce((a, t) => a + t.net, 0); }
+
+function renderLive() {
+  drawChart();
+  const lp = lastPrice();
+  $('#lastPx').textContent = px(lp);
+  const bars = S.session.bars;
+  const prevRef = S.session.priorClose;
+  const chg = lp - prevRef;
+  $('#barChange').innerHTML = '<span class="' + sgnClass(chg) + '">' + (chg >= 0 ? '+' : '−') + Math.abs(chg).toFixed(2) + ' (' + (chg >= 0 ? '+' : '−') + Math.abs(chg / prevRef * 100).toFixed(2) + '%)</span> vs prior close';
+  const b = bars[Math.min(S.cursor, bars.length - 1)];
+  $('#clock').textContent = b.t + ' ET' + (S.cursor < PRE_BARS ? ' · pre-open' : '');
+  const LV = computeLevels();
+  if (LV && LV.last != null && LVL.vwap) {
+    const d = lp - LV.last;
+    $('#vwapDist').innerHTML = 'VWAP ' + px(LV.last) + ' · <span class="' + sgnClass(d) + '">' + (d >= 0 ? '+' : '−') + Math.abs(d).toFixed(2) + '</span>';
+  } else $('#vwapDist').textContent = '';
+
+  const eq = S.startEquity + totalNet() + openPnl();
+  $('#chipEquity').textContent = fmt$(eq, 0);
+  const day = S.realized + openPnl();
+  const dc = $('#chipDay'); dc.textContent = fmtSigned$(day); dc.className = 'num ' + sgnClass(day);
+  const P = S.position;
+  $('#chipPos').innerHTML = P
+    ? '<b class="' + (P.side === 'Long' ? 'pos' : 'neg') + '">' + (P.side === 'Long' ? 'Long ' : 'Short ') + P.qty + '</b>'
+    : 'Flat';
+
+  $('#accEquity').textContent = fmt$(eq, 0);
+  const rEl = $('#accRealized'); rEl.textContent = fmtSigned$(S.realized); rEl.className = sgnClass(S.realized);
+  const oEl = $('#accOpen'); oEl.textContent = P ? fmtSigned$(openPnl()) : '—'; oEl.className = P ? sgnClass(openPnl()) : '';
+  // drawdown over sim equity path
+  let run = S.startEquity, peak = S.startEquity, dd = 0;
+  for (const t of S.trades) { if (t.source !== 'sim') continue; run += t.net; peak = Math.max(peak, run); dd = Math.min(dd, run - peak); }
+  $('#accDD').textContent = dd ? fmt$(dd, 0) : '$0';
+  const sim = S.trades.filter(t => t.source === 'sim');
+  const wins = sim.filter(t => t.net > 0).length;
+  $('#accTrades').textContent = sim.length + ' / ' + (sim.length ? (wins / sim.length * 100).toFixed(0) + '%' : '—');
+
+  renderPosBox();
+  renderBanner();
+  if (typeof syncMobileBar === 'function') syncMobileBar();
+}
+
+function renderPosBox() {
+  const P = S.position, el = $('#posBox');
+  if (!P) { el.innerHTML = '<p class="hint" style="margin:0">Flat. Set your stop and target <i>before</i> you click — the ticket sizes the risk for you.</p>'; return; }
+  const pnl = openPnl();
+  const dir = P.side === 'Long' ? 1 : -1;
+  const rNow = P.riskD ? (pnl / P.riskD) : 0;
+  el.innerHTML =
+    '<div class="kv"><span>' + P.side + ' ' + P.qty + ' @ ' + px(P.entry) + '</span><b class="' + sgnClass(pnl) + '">' + fmtSigned$(pnl) + '</b></div>' +
+    '<div class="kv"><span>Open R</span><b class="' + sgnClass(rNow) + '">' + rNow.toFixed(2) + 'R</b></div>' +
+    '<div class="kv"><span>Stop</span><b>' + px(P.stop) + ' <span class="hint">(' + (Math.abs(P.entry - P.stop)).toFixed(2) + ' pts)</span></b></div>' +
+    '<div class="kv"><span>Target</span><b>' + px(P.target) + ' <span class="hint">(' + (Math.abs(P.target - P.entry)).toFixed(2) + ' pts)</span></b></div>' +
+    '<div class="kv"><span>MAE / MFE</span><b>' + P.mae.toFixed(2) + ' / +' + P.mfe.toFixed(2) + '</b></div>' +
+    '<div class="row" style="margin-top:8px">' +
+      '<button class="btn sm" data-adj="stop:-1" style="flex:1">Stop −</button>' +
+      '<button class="btn sm" data-adj="stop:1" style="flex:1">Stop +</button>' +
+      '<button class="btn sm" data-adj="target:-1" style="flex:1">Tgt −</button>' +
+      '<button class="btn sm" data-adj="target:1" style="flex:1">Tgt +</button>' +
+    '</div>';
+}
+
+function renderBanner() {
+  const el = $('#simBanner');
+  if (S.locked) { el.innerHTML = '<div class="banner stop"><b>Trading locked.</b> ' + esc(S.lockReason) + '</div>'; return; }
+  const cap = +$('#lossLimit').value || 0;
+  if (cap > 0 && S.realized < -cap * 0.6) { el.innerHTML = '<div class="banner warn">You are ' + fmt$(Math.abs(S.realized), 0) + ' down — ' + fmt$(cap + S.realized, 0) + ' from your cap. This is where most damage gets done.</div>'; return; }
+  el.innerHTML = '';
+}
+
+function renderRisk() {
+  const qty = clamp(Math.round(+$('#qty').value || 1), 1, 20);
+  const stopPts = Math.max(SPEC.tick, +$('#stopPts').value || 4);
+  const tgtPts = Math.max(SPEC.tick, +$('#targetPts').value || 8);
+  const risk = stopPts * SPEC.pointValue * qty;
+  const rew = tgtPts * SPEC.pointValue * qty;
+  const eq = S.startEquity + totalNet();
+  const pctRisk = eq > 0 ? risk / eq * 100 : 0;
+  const rr = tgtPts / stopPts;
+  const be = 1 / (1 + rr) * 100;
+  const allowed = maxContracts(stopPts);
+  const overCap = qty > allowed;
+  const warn = (pctRisk > 1.5 || overCap) ? ' style="color:var(--warn)"' : '';
+  $('#riskPreview').innerHTML =
+    'Risk <b' + warn + '>' + fmt$(risk, 0) + '</b> (' + pctRisk.toFixed(2) + '% of equity) · reward <b>' + fmt$(rew, 0) + '</b> · ' +
+    '<b>' + rr.toFixed(2) + ':1</b> — needs <b>' + be.toFixed(0) + '%</b> win rate to break even.' +
+    (overCap
+      ? '<br><span style="color:var(--down)">Your daily cap allows ' + allowed + ' contract' + (allowed === 1 ? '' : 's') + ' at this stop. This order will be refused.</span>'
+      : (pctRisk > 1.5 ? '<br><span style="color:var(--warn)">That is a big bet for one idea. Most consistent traders risk 0.25–1%.</span>' : ''));
+  if (typeof syncMobileBar === 'function') syncMobileBar();
+}
+
+function renderSide() { renderRisk(); renderPosBox(); if (typeof syncMobileBar === 'function') syncMobileBar(); }
+function renderAll() { renderLive(); renderRisk(); renderJournal(); }
+
+/* ============================================================
+   Journal
+   ============================================================ */
+function filtered() {
+  const d = $('#fltDir').value, tg = $('#fltTag').value, sc = $('#fltSrc').value;
+  return S.trades.filter(t => (!d || t.side === d) && (!tg || t.tag === tg) && (!sc || t.source === sc));
+}
+
+function computeStats(list) {
+  const n = list.length;
+  const wins = list.filter(t => t.net > 0), losses = list.filter(t => t.net < 0);
+  const gw = wins.reduce((a, t) => a + t.net, 0), gl = Math.abs(losses.reduce((a, t) => a + t.net, 0));
+  const net = list.reduce((a, t) => a + t.net, 0);
+  const rs = list.filter(t => t.R != null && isFinite(t.R)).map(t => t.R);
+  let run = 0, peak = 0, dd = 0;
+  for (const t of list) { run += t.net; peak = Math.max(peak, run); dd = Math.min(dd, run - peak); }
+  let curStreak = 0, worstStreak = 0;
+  for (const t of list) { if (t.net < 0) { curStreak++; worstStreak = Math.max(worstStreak, curStreak); } else curStreak = 0; }
+  return {
+    n, net, wins: wins.length, losses: losses.length,
+    winRate: n ? wins.length / n * 100 : 0,
+    pf: gl > 0 ? gw / gl : (gw > 0 ? Infinity : 0),
+    avgWin: wins.length ? gw / wins.length : 0,
+    avgLoss: losses.length ? gl / losses.length : 0,
+    expR: rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : null,
+    expD: n ? net / n : 0,
+    maxDD: dd, worstStreak,
+    best: n ? Math.max.apply(null, list.map(t => t.net)) : 0,
+    worst: n ? Math.min.apply(null, list.map(t => t.net)) : 0,
+    commissions: list.reduce((a, t) => a + (t.comm || 0), 0)
+  };
+}
+
+function renderJournal() {
+  const list = filtered();
+  const st = computeStats(list);
+  const tiles = [
+    ['Net P&L', fmtSigned$(st.net), sgnClass(st.net), st.n + ' trades · ' + fmt$(st.commissions, 0) + ' in fees'],
+    ['Win rate', st.n ? st.winRate.toFixed(1) + '%' : '—', '', st.n ? st.wins + ' W / ' + st.losses + ' L' : ''],
+    ['Expectancy', st.expR == null ? '—' : (st.expR >= 0 ? '+' : '−') + Math.abs(st.expR).toFixed(2) + 'R', st.expR == null ? '' : sgnClass(st.expR), st.n ? fmtSigned$(st.expD) + ' per trade' : ''],
+    ['Profit factor', st.pf === Infinity ? '∞' : st.pf.toFixed(2), st.pf >= 1 ? 'pos' : 'neg', 'gross win ÷ gross loss'],
+    ['Avg win / loss', st.n ? fmt$(st.avgWin, 0) + ' / ' + fmt$(st.avgLoss, 0) : '—', '', st.avgLoss ? (st.avgWin / st.avgLoss).toFixed(2) + ' payoff ratio' : ''],
+    ['Max drawdown', fmt$(st.maxDD, 0), st.maxDD < 0 ? 'neg' : '', st.worstStreak + ' loss streak'],
+  ];
+  $('#statTiles').innerHTML = tiles.map(t =>
+    '<div class="tile"><div class="t-label">' + t[0] + '</div><div class="t-val ' + t[2] + '">' + t[1] + '</div><div class="t-sub">' + t[3] + '</div></div>'
+  ).join('');
+
+  // tag filter options
+  const tags = Array.from(new Set(S.trades.map(t => t.tag).filter(Boolean)));
+  const sel = $('#fltTag'), cur = sel.value;
+  sel.innerHTML = '<option value="">All setups</option>' + tags.map(t => '<option' + (t === cur ? ' selected' : '') + '>' + esc(t) + '</option>').join('');
+
+  // table
+  const body = $('#tradesBody');
+  body.innerHTML = list.slice().reverse().map(t => {
+    return '<tr data-id="' + t.id + '">' +
+      '<td class="l num">' + t.id + '</td>' +
+      '<td class="l num">' + esc(t.openedAt || t.t) + '→' + esc(t.t) + '</td>' +
+      '<td class="l"><span class="tag ' + (t.side === 'Long' ? 'pos' : 'neg') + '">' + t.side + '</span></td>' +
+      '<td class="num">' + t.qty + '</td>' +
+      '<td class="num">' + px(t.entry) + '</td>' +
+      '<td class="num">' + px(t.exit) + '</td>' +
+      '<td class="num ' + sgnClass(t.pts) + '">' + (t.pts >= 0 ? '+' : '−') + Math.abs(t.pts).toFixed(2) + '</td>' +
+      '<td class="num ' + sgnClass(t.net) + '"><b>' + fmtSigned$(t.net) + '</b></td>' +
+      '<td class="num ' + (t.R == null ? '' : sgnClass(t.R)) + '">' + (t.R == null ? '—' : (t.R >= 0 ? '+' : '−') + Math.abs(t.R).toFixed(2)) + '</td>' +
+      '<td class="num">' + (t.mae == null ? '—' : t.mae.toFixed(2)) + '</td>' +
+      '<td class="num">' + (t.mfe == null ? '—' : '+' + t.mfe.toFixed(2)) + '</td>' +
+      '<td class="l">' + esc(t.reason || '') + '</td>' +
+      '<td class="l"><span class="tag">' + esc(t.tag || 'Untagged') + '</span></td>' +
+      '<td class="l"><input data-note="' + t.id + '" type="text" value="' + esc(t.note || '') + '" placeholder="why?" style="min-height:26px;padding:2px 6px;font-size:12px;min-width:130px"></td>' +
+      '<td><button class="btn sm" data-del="' + t.id + '" title="Delete">✕</button></td>' +
+      '</tr>';
+  }).join('');
+  $('#tradesEmpty').style.display = list.length ? 'none' : 'block';
+
+  drawEquity(list); drawRHist(list); drawHour(list); renderByTag(list);
+}
+
+function renderByTag(list) {
+  const groups = {};
+  for (const t of list) { const k = t.tag || 'Untagged'; (groups[k] = groups[k] || []).push(t); }
+  const keys = Object.keys(groups).sort((a, b) => computeStats(groups[b]).net - computeStats(groups[a]).net);
+  if (!keys.length) { $('#byTag').innerHTML = '<p class="hint" style="margin:0">Tag your trades in the ticket and the pattern shows up here fast — usually one tag is quietly paying for all the others.</p>'; return; }
+  const maxAbs = Math.max.apply(null, keys.map(k => Math.abs(computeStats(groups[k]).net))) || 1;
+  $('#byTag').innerHTML = keys.map(k => {
+    const st = computeStats(groups[k]);
+    const w = Math.abs(st.net) / maxAbs * 100;
+    return '<div style="margin-bottom:9px">' +
+      '<div class="row" style="justify-content:space-between;font-size:12.5px"><span>' + esc(k) + ' <span class="hint">· ' + st.n + ' trades · ' + st.winRate.toFixed(0) + '% win</span></span>' +
+      '<b class="num ' + sgnClass(st.net) + '">' + fmtSigned$(st.net) + (st.expR != null ? ' · ' + (st.expR >= 0 ? '+' : '−') + Math.abs(st.expR).toFixed(2) + 'R' : '') + '</b></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + w + '%;background:' + (st.net >= 0 ? 'var(--up)' : 'var(--down)') + '"></div></div></div>';
+  }).join('');
+}
+
+/* ---------- mini charts ---------- */
+function prepCanvas(c) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth, h = c.clientHeight;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  return { g, w, h };
+}
+function noData(g, w, h, msg) {
+  g.fillStyle = css('--muted'); g.font = '12px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(msg, w / 2, h / 2);
+}
+
+function drawEquity(list) {
+  const { g, w, h } = prepCanvas($('#eqChart'));
+  if (list.length < 1) return noData(g, w, h, 'No closed trades yet');
+  const pts = [0]; let run = 0;
+  for (const t of list) { run += t.net; pts.push(run); }
+  const lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+  const pad = Math.max((hi - lo) * 0.12, 20);
+  const y0 = 8, y1 = h - 20, x0 = 40, x1 = w - 8;
+  const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+  const X = i => x0 + i / Math.max(1, pts.length - 1) * (x1 - x0);
+  // zero line
+  g.strokeStyle = css('--axis'); g.setLineDash([4, 4]);
+  g.beginPath(); g.moveTo(x0, Y(0)); g.lineTo(x1, Y(0)); g.stroke(); g.setLineDash([]);
+  g.fillStyle = css('--muted'); g.font = '10px ' + css('--mono'); g.textAlign = 'right'; g.textBaseline = 'middle';
+  g.fillText('$0', x0 - 5, Y(0));
+  g.fillText(fmt$(hi, 0), x0 - 5, Y(hi));
+  if (lo < 0) g.fillText(fmt$(lo, 0), x0 - 5, Y(lo));
+  // area
+  const grad = g.createLinearGradient(0, y0, 0, y1);
+  grad.addColorStop(0, 'rgba(57,135,229,.30)'); grad.addColorStop(1, 'rgba(57,135,229,0)');
+  g.beginPath(); g.moveTo(X(0), Y(pts[0]));
+  pts.forEach((v, i) => g.lineTo(X(i), Y(v)));
+  g.lineTo(X(pts.length - 1), Y(0)); g.lineTo(X(0), Y(0)); g.closePath();
+  g.fillStyle = grad; g.fill();
+  // line
+  g.beginPath(); pts.forEach((v, i) => i ? g.lineTo(X(i), Y(v)) : g.moveTo(X(i), Y(v)));
+  g.strokeStyle = css('--accent'); g.lineWidth = 2; g.lineJoin = 'round'; g.stroke();
+  // end dot + label
+  const lx = X(pts.length - 1), ly = Y(run);
+  g.fillStyle = css('--surface'); g.beginPath(); g.arc(lx, ly, 5, 0, 7); g.fill();
+  g.fillStyle = css('--accent'); g.beginPath(); g.arc(lx, ly, 3.4, 0, 7); g.fill();
+  g.fillStyle = css('--ink'); g.font = 'bold 11px ' + css('--mono'); g.textAlign = 'right'; g.textBaseline = 'bottom';
+  g.fillText(fmtSigned$(run), x1, ly - 8);
+  g.fillStyle = css('--muted'); g.font = '10px system-ui'; g.textAlign = 'center'; g.textBaseline = 'top';
+  g.fillText('trade 1', x0 + 14, y1 + 4);
+  if (list.length > 1) g.fillText('trade ' + list.length, x1 - 22, y1 + 4);
+}
+
+function drawRHist(list) {
+  const { g, w, h } = prepCanvas($('#rChart'));
+  const rs = list.filter(t => t.R != null && isFinite(t.R)).map(t => t.R);
+  if (!rs.length) return noData(g, w, h, 'No R data — set a stop when you enter');
+  const edges = [-3, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 3, 5];
+  const labels = ['<-3', '-3', '-2', '-1.5', '-1', '-0.5', '0', '+0.5', '+1', '+1.5', '+2', '+3', '5+'];
+  const counts = new Array(edges.length + 1).fill(0);
+  for (const r of rs) {
+    let b = edges.length;
+    for (let i = 0; i < edges.length; i++) { if (r < edges[i]) { b = i; break; } }
+    counts[b]++;
+  }
+  const max = Math.max.apply(null, counts) || 1;
+  const y0 = 10, y1 = h - 26, x0 = 6, x1 = w - 6;
+  const bw = (x1 - x0) / counts.length;
+  g.font = '9px ' + css('--mono'); g.textBaseline = 'top';
+  for (let i = 0; i < counts.length; i++) {
+    const hgt = counts[i] / max * (y1 - y0);
+    const x = x0 + i * bw + 1.5;
+    const neg = i <= 5;
+    g.fillStyle = neg ? css('--down') : css('--up');
+    if (counts[i] > 0) { g.beginPath(); roundRectTop(g, x, y1 - hgt, bw - 3, hgt, 4); g.fill(); }
+    g.fillStyle = css('--muted'); g.textAlign = 'center';
+    if (i % 2 === 0) g.fillText(labels[i] || '', x + (bw - 3) / 2, y1 + 4);
+    if (counts[i] > 0) { g.fillStyle = css('--ink-2'); g.fillText(String(counts[i]), x + (bw - 3) / 2, y1 - hgt - 11); }
+  }
+  g.strokeStyle = css('--axis'); g.beginPath(); g.moveTo(x0, y1 + .5); g.lineTo(x1, y1 + .5); g.stroke();
+  g.fillStyle = css('--muted'); g.textAlign = 'left'; g.font = '10px system-ui';
+  g.fillText('R multiple per trade', x0 + 2, 0);
+}
+function roundRectTop(g, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h);
+  g.moveTo(x, y + h); g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+  g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r); g.lineTo(x + w, y + h); g.closePath();
+}
+
+function drawHour(list) {
+  const { g, w, h } = prepCanvas($('#hourChart'));
+  if (!list.length) return noData(g, w, h, 'No closed trades yet');
+  const buckets = {};
+  for (const t of list) {
+    const hr = (t.openedAt || t.t || '00:00').slice(0, 2);
+    buckets[hr] = (buckets[hr] || 0) + t.net;
+  }
+  const keys = Object.keys(buckets).sort();
+  const vals = keys.map(k => buckets[k]);
+  const max = Math.max.apply(null, vals.map(Math.abs)) || 1;
+  const y0 = 12, y1 = h - 22, x0 = 8, x1 = w - 8;
+  const zero = y0 + (y1 - y0) / 2;
+  const slot = (x1 - x0) / keys.length;
+  const bwi = Math.min(slot * 0.55, 56);
+  const maxH = (y1 - y0) / 2 - 18;
+  g.strokeStyle = css('--axis'); g.beginPath(); g.moveTo(x0, zero + .5); g.lineTo(x1, zero + .5); g.stroke();
+  g.font = '10px ' + css('--mono'); g.textAlign = 'center';
+  for (let i = 0; i < keys.length; i++) {
+    const v = vals[i], hgt = Math.max(Math.abs(v) / max * maxH, 2);
+    const cx = x0 + i * slot + slot / 2, x = cx - bwi / 2;
+    g.fillStyle = v >= 0 ? css('--up') : css('--down');
+    g.beginPath();
+    if (v >= 0) roundRectTop(g, x, zero - hgt, bwi, hgt, 4);
+    else { g.save(); g.translate(0, zero * 2); g.scale(1, -1); roundRectTop(g, x, zero - hgt, bwi, hgt, 4); }
+    g.fill();
+    if (v < 0) g.restore();
+    g.fillStyle = css('--muted'); g.textBaseline = 'top';
+    g.fillText(keys[i] + ':00', cx, y1 + 3);
+    g.fillStyle = css('--ink-2'); g.textBaseline = v >= 0 ? 'bottom' : 'top';
+    g.fillText((v >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(v)), cx, v >= 0 ? zero - hgt - 3 : zero + hgt + 3);
+  }
+}
+
+/* ---------- manual trade form ---------- */
+function toggleAddForm() {
+  let f = $('#addForm');
+  if (f) { f.remove(); return; }
+  f = document.createElement('div');
+  f.id = 'addForm'; f.className = 'card'; f.style.marginBottom = '12px';
+  f.innerHTML =
+    '<h3>Log a trade by hand</h3>' +
+    '<div class="grid2">' +
+    '<div><label class="lbl">Time in (HH:MM)</label><input id="mIn" type="text" value="09:45" placeholder="09:45"></div>' +
+    '<div><label class="lbl">Time out</label><input id="mOut" type="text" value="10:05"></div>' +
+    '<div><label class="lbl">Side</label><select id="mSide"><option>Long</option><option>Short</option></select></div>' +
+    '<div><label class="lbl">Contracts</label><input id="mQty" type="number" value="1" min="1"></div>' +
+    '<div><label class="lbl">Entry</label><input id="mEntry" type="number" step="0.25" placeholder="6842.25"></div>' +
+    '<div><label class="lbl">Exit</label><input id="mExit" type="number" step="0.25" placeholder="6848.00"></div>' +
+    '<div><label class="lbl">Initial stop (for R)</label><input id="mStop" type="number" step="0.25" placeholder="6836.75"></div>' +
+    '<div><label class="lbl">Setup tag</label><input id="mTag" type="text" placeholder="Trend pullback"></div>' +
+    '</div>' +
+    '<div style="margin-top:8px"><label class="lbl">Note — what did you actually do right or wrong?</label><textarea id="mNote" rows="2"></textarea></div>' +
+    '<div class="row" style="margin-top:10px"><button class="btn primary" id="mSave">Save trade</button><button class="btn" id="mCancel">Cancel</button></div>';
+  $('#panel-journal').insertBefore(f, $('#statTiles'));
+  $('#mCancel').onclick = () => f.remove();
+  $('#mSave').onclick = () => {
+    const side = $('#mSide').value, qty = Math.max(1, +$('#mQty').value || 1);
+    const entry = +$('#mEntry').value, exit = +$('#mExit').value, stop = +$('#mStop').value;
+    if (!entry || !exit) { toast('Entry and exit are required.'); return; }
+    const dir = side === 'Long' ? 1 : -1;
+    const pts = (exit - entry) * dir;
+    const gross = pts * SPEC.pointValue * qty;
+    const comm = SPEC.commission * 2 * qty;
+    const riskD = stop ? Math.abs(entry - stop) * SPEC.pointValue * qty : 0;
+    S.trades.push({
+      id: S.trades.length + 1, t: $('#mOut').value || '—', openedAt: $('#mIn').value || '—',
+      side, qty, entry, exit, pts, gross, comm, net: gross - comm,
+      riskD, R: riskD ? (gross - comm) / riskD : null, mae: null, mfe: null,
+      reason: 'Manual', tag: $('#mTag').value || 'Untagged', note: $('#mNote').value, source: 'manual'
+    });
+    f.remove(); renderJournal(); saveState(); toast('Trade logged.');
+  };
+}
+
+/* ---------- import / export ---------- */
+function download(name, text, type) {
+  const blob = new Blob([text], { type: type || 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function exportCsv() {
+  const cols = ['id', 'openedAt', 't', 'side', 'qty', 'entry', 'exit', 'pts', 'gross', 'comm', 'net', 'R', 'mae', 'mfe', 'reason', 'tag', 'note', 'source', 'seed'];
+  const rows = [cols.join(',')].concat(S.trades.map(t => cols.map(c => {
+    const v = t[c]; if (v == null) return '';
+    return /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v;
+  }).join(',')));
+  download('es-journal-' + new Date().toISOString().slice(0, 10) + '.csv', rows.join('\n'), 'text/csv');
+}
+function exportJson() {
+  download('es-practice-backup-' + new Date().toISOString().slice(0, 10) + '.json',
+    JSON.stringify({ version: 1, savedAt: new Date().toISOString(), trades: S.trades, patternLab: {stats: PL.stats, asked: PL.asked, correct: PL.correct, stopN: PL.stopN, stopOk: PL.stopOk} }, null, 2), 'application/json');
+}
+function importJson(file) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const data = JSON.parse(fr.result);
+      if (!Array.isArray(data.trades)) throw new Error('no trades');
+      S.trades = data.trades;
+      S.trades.forEach((t, i) => t.id = i + 1);
+      if (data.patternLab) { PL.stats = data.patternLab.stats || {}; PL.asked = data.patternLab.asked || 0; PL.correct = data.patternLab.correct || 0; PL.stopN = data.patternLab.stopN || 0; PL.stopOk = data.patternLab.stopOk || 0; }
+      renderJournal(); renderPatternStats(); saveState();
+      toast('Restored ' + S.trades.length + ' trades.');
+    } catch (e) { toast('That file did not look like a backup.'); }
+  };
+  fr.readAsText(file);
+}
+
+
+/* ============================================================
+   Local auto-save
+   Wrapped in try/catch throughout: if storage is blocked (private
+   mode, an embedded viewer, quota) the app runs from memory and
+   simply says so in Settings. Nothing leaves this machine.
+   ============================================================ */
+const STORE_KEY = 'es-practice-lab-v1';
+const SETTING_IDS = ['setEquity', 'setComm', 'setSlip', 'setPointVal', 'setBase', 'setVol', 'setSeed',
+  'setOR', 'setSess', 'lossLimit', 'maxTrades', 'setCvd', 'setHideLevels', 'setAutoPause', 'enforceRules'];
+let storeOK = null, saveTimer = null;
+
+function storageAvailable() {
+  if (storeOK !== null) return storeOK;
+  try {
+    const k = '__eslab_test';
+    window.localStorage.setItem(k, '1');
+    window.localStorage.removeItem(k);
+    storeOK = true;
+  } catch (e) { storeOK = false; }
+  return storeOK;
+}
+function autosaveOn() { const el = $('#setAutosave'); return el ? el.checked : true; }
+
+function settingsSnapshot() {
+  const o = {};
+  SETTING_IDS.forEach(id => { const el = $('#' + id); if (el) o[id] = el.type === 'checkbox' ? el.checked : el.value; });
+  return o;
+}
+
+function saveState() {
+  if (!autosaveOn() || !storageAvailable()) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify({
+        v: 1, savedAt: new Date().toISOString(),
+        trades: S.trades,
+        pl: {
+          stats: PL.stats, asked: PL.asked, correct: PL.correct, best: PL.best,
+          stopN: PL.stopN, stopOk: PL.stopOk, hardAsked: PL.hardAsked, hardCorrect: PL.hardCorrect, hard: PL.hard
+        },
+        settings: settingsSnapshot(),
+        levels: LVL
+      }));
+      saveStatus();
+    } catch (e) { storeOK = false; saveStatus(); }
+  }, 400);
+}
+
+function loadState() {
+  if (!storageAvailable()) return false;
+  let data;
+  try { data = JSON.parse(window.localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return false; }
+  if (!data) return false;
+  try {
+    if (data.settings) {
+      Object.keys(data.settings).forEach(id => {
+        const el = $('#' + id); if (!el) return;
+        if (el.type === 'checkbox') el.checked = !!data.settings[id]; else el.value = data.settings[id];
+      });
+      if ($('#setCvd').checked) document.documentElement.setAttribute('data-cvd', 'on');
+    }
+    if (data.levels) {
+      Object.keys(LVL).forEach(k => { if (k in data.levels) LVL[k] = !!data.levels[k]; });
+      $$('#lvlSeg button').forEach(b => b.setAttribute('aria-pressed', String(!!LVL[b.dataset.lvl])));
+    }
+    if (Array.isArray(data.trades)) { S.trades = data.trades; S.trades.forEach((t, i) => t.id = i + 1); }
+    if (data.pl) {
+      PL.stats = data.pl.stats || {};
+      PL.asked = data.pl.asked || 0; PL.correct = data.pl.correct || 0; PL.best = data.pl.best || 0;
+      PL.stopN = data.pl.stopN || 0; PL.stopOk = data.pl.stopOk || 0;
+      PL.hardAsked = data.pl.hardAsked || 0; PL.hardCorrect = data.pl.hardCorrect || 0;
+      PL.hard = !!data.pl.hard;
+      if ($('#dHard')) $('#dHard').checked = PL.hard;
+    }
+    return { trades: S.trades.length, when: data.savedAt };
+  } catch (e) { return false; }
+}
+
+function forgetSaved() {
+  try { window.localStorage.removeItem(STORE_KEY); } catch (e) { }
+  saveStatus();
+}
+
+function saveStatus() {
+  const el = $('#saveStatus'); if (!el) return;
+  if (!storageAvailable()) {
+    el.innerHTML = '<span style="color:var(--warn)">Auto-save is not available in this viewer</span> — the journal lives in memory only here. Open the file directly in Safari or Chrome and it will save. Use <b>Save backup file</b> either way.';
+    return;
+  }
+  if (!autosaveOn()) { el.textContent = 'Auto-save is off. Nothing is being written to this browser.'; return; }
+  let size = 0;
+  try { size = (window.localStorage.getItem(STORE_KEY) || '').length; } catch (e) { }
+  el.innerHTML = 'Saved on this device · ' + S.trades.length + ' trades · ' + (size / 1024).toFixed(1) + ' KB. Stays in this browser only — clearing site data wipes it, so keep the odd backup file.';
+}
+
+
+/* ============================================================
+   Pattern lab — failed breaks & reversals
+   ============================================================ */
+const PL = {
+  mode: 'mixed', sc: null, step: 'call',
+  call: null, stopPick: null,
+  reveal: 0, timer: null,
+  asked: 0, correct: 0, streak: 0, best: 0,
+  stats: {}, stopN: 0, stopOk: 0,
+  hard: false, hardAsked: 0, hardCorrect: 0,
+  misses: [], sinceReview: 0, isReview: false
+};
+
+function nrand() { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const rr = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+const mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+
+function trueRangeATR(bars) {
+  if (bars.length < 2) return 1;
+  const trs = [];
+  for (let i = 1; i < bars.length; i++) {
+    const b = bars[i], p = bars[i - 1];
+    trs.push(Math.max(b.h - b.l, Math.abs(b.h - p.c), Math.abs(b.l - p.c)));
+  }
+  return Math.max(0.25, mean(trs));
+}
+
+/* turn a u-space spine into candles.  price = anchor + k * u  */
+function spineToBars(spine, vols, k, anchor, noise, prevClose, t0) {
+  const out = [];
+  let o = prevClose == null ? anchor + k * spine[0] : prevClose;
+  for (let i = 0; i < spine.length; i++) {
+    const c = roundTick(anchor + k * spine[i] + nrand() * noise * 0.35);
+    const hi = roundTick(Math.max(o, c) + Math.abs(nrand()) * noise * 0.45);
+    const lo = roundTick(Math.min(o, c) - Math.abs(nrand()) * noise * 0.45);
+    out.push({ o: roundTick(o), h: hi, l: lo, c: c, v: Math.round(vols[i]), t: minuteToClock(t0 + i) });
+    o = c;
+  }
+  return out;
+}
+
+/* ---------- the four tells, at a level ---------- */
+function levelFacts(bars, breakStart, k, level, atr) {
+  const uC = b => k * (b.c - level);
+  const uLo = b => Math.min(k * (b.l - level), k * (b.h - level));
+  const pre = bars.slice(0, breakStart), brk = bars.slice(breakStart);
+  const ext = -Math.min.apply(null, brk.map(uLo));
+  const volPre = mean(pre.slice(-20).map(b => b.v)) || 1;
+  const volBrk = mean(brk.map(b => b.v));
+  // count the pivots that actually touched the level, the way a person would
+  let tests = 0;
+  for (let i = 3; i < pre.length - 3; i++) {
+    const v = uLo(pre[i]);
+    if (v > atr * 0.7) continue;
+    let isPivot = true;
+    for (let j = i - 3; j <= i + 3; j++) { if (j !== i && uLo(pre[j]) < v) { isPivot = false; break; } }
+    if (isPivot) { tests++; i += 3; }
+  }
+  return {
+    ext: ext, extATR: ext / atr,
+    closesBeyond: brk.filter(b => uC(b) < 0).length,
+    barsBeyond: brk.filter(b => uLo(b) < 0).length,
+    volRatio: volBrk / volPre,
+    tests: Math.max(1, tests), atr: atr,
+    backInside: uC(bars[bars.length - 1]) >= 0
+  };
+}
+
+function classifyLevel(f) {
+  let a = 0, b = 0;                       // a = failed break, b = real break
+  const votes = [];
+  if (f.extATR < 1.05) { a++; votes.push(['ext', 'trap']); } else if (f.extATR > 1.55) { b++; votes.push(['ext', 'real']); } else votes.push(['ext', 'none']);
+  if (f.closesBeyond <= 2) { a++; votes.push(['closes', 'trap']); } else if (f.closesBeyond >= 4) { b++; votes.push(['closes', 'real']); } else votes.push(['closes', 'none']);
+  if (f.volRatio < 1.35) { a++; votes.push(['vol', 'trap']); } else if (f.volRatio > 1.6) { b++; votes.push(['vol', 'real']); } else votes.push(['vol', 'none']);
+  if (f.barsBeyond <= 4) { a++; votes.push(['time', 'trap']); } else if (f.barsBeyond >= 7) { b++; votes.push(['time', 'real']); } else votes.push(['time', 'none']);
+  f.votes = votes;
+  if (a >= 3 && b === 0) return 'trap';
+  if (b >= 3 && a === 0) return 'real';
+  return 'none';
+}
+
+/* ---------- the four tells, in a trend ---------- */
+function classifyTrend(f) {
+  let a = 0, b = 0;                        // a = exhaustion, b = continuation
+  const votes = [];
+  if (f.stretch > 2.2) { a++; votes.push(['stretch', 'trap']); } else if (f.stretch < 1.2) { b++; votes.push(['stretch', 'real']); } else votes.push(['stretch', 'none']);
+  if (f.climax > 1.9) { a++; votes.push(['climax', 'trap']); } else if (f.climax < 1.15) { b++; votes.push(['climax', 'real']); } else votes.push(['climax', 'none']);
+  if (f.volRatio > 1.9) { a++; votes.push(['vol', 'trap']); } else if (f.volRatio < 1.25) { b++; votes.push(['vol', 'real']); } else votes.push(['vol', 'none']);
+  if (f.contraction > 1.5) { a++; votes.push(['range', 'trap']); } else if (f.contraction < 0.9) { b++; votes.push(['range', 'real']); } else votes.push(['range', 'none']);
+  f.votes = votes;
+  if (a >= 3 && b === 0) return 'fade';
+  if (b >= 3 && a === 0) return 'follow';
+  return 'none';
+}
+
+/* ---------- scenario builders ---------- */
+function buildLevelScenario(family, intent) {
+  const anchor = roundTick((+$('#setBase').value || 6850) + rr(-40, 40));
+  const vm = +$('#setVol').value || 1;
+  const atr = 2.8 * vm;
+  const k = family === 'support' ? 1 : -1;
+  const level = anchor;
+
+  let u = rr(6, 10);
+  const spine = [], vols = [];
+  const ramp = (to, n, wob, vb) => { const from = u; for (let i = 1; i <= n; i++) { spine.push(from + (to - from) * i / n + nrand() * wob); vols.push(Math.max(150, vb * (0.75 + Math.random() * 0.5))); } u = to; };
+
+  const tests = ri(2, 3);
+  for (let t = 0; t < tests; t++) { ramp(rr(0.1, 1.1), ri(5, 8), atr * 0.22, 1700); ramp(rr(4.5, 9), ri(5, 8), atr * 0.26, 1550); }
+  ramp(rr(1.0, 2.5), ri(4, 6), atr * 0.2, 1400);
+  const breakStart = spine.length;
+
+  let d, belowBars, volMul;
+  if (intent === 'trap') { d = atr * rr(0.35, 0.85); belowBars = ri(2, 4); volMul = rr(0.7, 1.1); }
+  else if (intent === 'real') { d = atr * rr(1.8, 3.0); belowBars = ri(6, 10); volMul = rr(1.9, 3.0); }
+  else { d = atr * rr(0.9, 1.5); belowBars = ri(4, 7); volMul = rr(1.35, 1.7); }
+
+  ramp(-d * 0.85, ri(2, 3), atr * 0.22, 1750 * volMul);
+  for (let i = 0; i < belowBars; i++) {
+    const drift = intent === 'real' ? -d * 0.10 * i : 0;
+    spine.push(-d * rr(0.45, 1.0) + drift + nrand() * atr * 0.15);
+    vols.push(1750 * volMul * (0.7 + Math.random() * 0.6));
+  }
+  // the bar you are asked to judge
+  if (intent === 'trap') spine.push(rr(-0.4, -0.05) * atr);
+  else if (intent === 'real') { spine.push(spine[spine.length - 1] - rr(0.1, 0.5) * atr); }
+  else spine.push(-d * rr(0.35, 0.8));
+  vols.push(1750 * volMul * (0.8 + Math.random() * 0.4));
+  u = spine[spine.length - 1];
+
+  const bars = spineToBars(spine, vols, k, level, atr, null, 60);
+  const atrCalc = trueRangeATR(bars.slice(Math.max(0, breakStart - 14), breakStart));
+  const f = levelFacts(bars, breakStart, k, level, atrCalc);
+  const truth = classifyLevel(f);
+
+  // outcome, generated to match what the evidence actually says
+  const post = [], pv = [];
+  const ramp2 = (to, n, wob, vb) => { const from = u; for (let i = 1; i <= n; i++) { post.push(from + (to - from) * i / n + nrand() * wob); pv.push(Math.max(150, vb * (0.75 + Math.random() * 0.5))); } u = to; };
+  const minU = -f.ext;
+  if (truth === 'trap') { ramp2(rr(1.5, 3), 2, atr * 0.2, 2400); ramp2(rr(9, 24), ri(14, 18), atr * 0.3, 1900); }
+  else if (truth === 'real') { ramp2(minU - rr(5, 18), ri(15, 19), atr * 0.3, 2100); }
+  else { const c = u; for (let i = 0; i < 18; i++) { post.push(c + nrand() * atr * 0.9); pv.push(1500 * (0.7 + Math.random() * 0.6)); } u = post[post.length - 1]; }
+  const outBars = spineToBars(post, pv, k, level, atr, bars[bars.length - 1].c, 60 + bars.length);
+
+  const decision = bars.length;
+  const all = bars.concat(outBars);
+  // you do not enter where you are standing — a failed break is bought on the reclaim
+  let entryIdx = decision - 1;
+  if (truth === 'trap') {
+    for (let i = decision; i < all.length; i++) { if (k * (all[i].c - level) >= 0) { entryIdx = i; break; } }
+  }
+  const entry = all[entryIdx].c;
+  const entryNote = truth === 'trap'
+    ? 'Entry is the reclaim — the first close back inside the level, at ' + all[entryIdx].t + '. Not the bar you are looking at.'
+    : (truth === 'real' ? 'Entry is at market on the decision bar close — you are joining a break that is already moving.' : '');
+  const sweep = k > 0 ? Math.min.apply(null, bars.slice(breakStart).map(b => b.l)) : Math.max.apply(null, bars.slice(breakStart).map(b => b.h));
+  let sweepIdx = breakStart;
+  for (let i = breakStart; i < bars.length; i++) { if ((k > 0 ? bars[i].l : bars[i].h) === sweep) { sweepIdx = i; break; } }
+  const side = truth === 'trap' ? (k > 0 ? 'Long' : 'Short') : (k > 0 ? 'Short' : 'Long');
+  const lastBar = bars[decision - 1];
+
+  let stops = [];
+  if (truth === 'trap') {
+    stops = [
+      { key: 'struct', label: '3 ticks beyond the sweep ' + (k > 0 ? 'low' : 'high'), price: roundTick(sweep - k * 3 * SPEC.tick), note: 'Structural — the level only failed if that extreme gives way again.' },
+      { key: 'tight', label: 'A tick beyond the level itself', price: roundTick(level - k * SPEC.tick), note: 'Feels tight and cheap. It sits inside the exact noise the sweep just created.' },
+      { key: 'flat', label: 'A flat 10 points from entry', price: roundTick(entry - (side === 'Long' ? 10 : -10)), note: 'Ignores the structure entirely — the number came from you, not the chart.' }
+    ];
+  } else if (truth === 'real') {
+    stops = [
+      { key: 'struct', label: '3 ticks back inside the level', price: roundTick(level + k * 3 * SPEC.tick), note: 'Structural — a reclaim of the level means the breakdown failed and you are wrong.' },
+      { key: 'tight', label: 'Just past the last bar’s extreme', price: roundTick((k > 0 ? lastBar.h : lastBar.l) + k * SPEC.tick), note: 'A one-bar stop. Any normal retest takes it out.' },
+      { key: 'flat', label: 'A flat 10 points from entry', price: roundTick(entry - (side === 'Long' ? 10 : -10)), note: 'Ignores the structure entirely.' }
+    ];
+  }
+
+  return {
+    family: family, k: k, level: level, atr: atrCalc, bars: all, decision: decision, breakStart: breakStart,
+    truth: truth, facts: f, side: truth === 'none' ? null : side, entry: entry, entryIdx: entryIdx, entryNote: entryNote,
+    sweep: sweep, sweepIdx: sweepIdx, stops: stops,
+    title: (family === 'support' ? 'Price just broke a support level that had held ' + f.tests + ' time' + (f.tests > 1 ? 's' : '') : 'Price just broke out over a high that had capped it ' + f.tests + ' time' + (f.tests > 1 ? 's' : '')),
+    question: 'What just happened?',
+    options: family === 'support'
+      ? [{ key: 'trap', label: 'Failed breakdown', desc: 'the low got swept — buy the reclaim' },
+         { key: 'real', label: 'Real breakdown', desc: 'sellers took control — this keeps going' },
+         { key: 'none', label: 'No trade', desc: 'the evidence disagrees with itself' }]
+      : [{ key: 'trap', label: 'Failed breakout', desc: 'the high got swept — sell the rejection' },
+         { key: 'real', label: 'Real breakout', desc: 'buyers took control — this keeps going' },
+         { key: 'none', label: 'No trade', desc: 'the evidence disagrees with itself' }]
+  };
+}
+
+function buildTrendScenario(intent) {
+  const anchor = roundTick((+$('#setBase').value || 6850) + rr(-40, 40));
+  const vm = +$('#setVol').value || 1;
+  const atr = 2.8 * vm;
+  const k = Math.random() < 0.5 ? 1 : -1;
+
+  let u = 0;
+  const spine = [], vols = [];
+  const ramp = (to, n, wob, vb) => { const from = u; for (let i = 1; i <= n; i++) { spine.push(from + (to - from) * i / n + nrand() * wob); vols.push(Math.max(150, vb * (0.75 + Math.random() * 0.5))); } u = to; };
+
+  ramp(rr(-2, 2), ri(8, 12), atr * 0.3, 1500);
+  const legs = ri(3, 4);
+  for (let i = 0; i < legs; i++) { ramp(u + rr(6, 11), ri(6, 9), atr * 0.28, 1650); ramp(u - rr(1.5, 4), ri(3, 5), atr * 0.22, 1250); }
+
+  if (intent === 'fade') { ramp(u + rr(10, 17), 2, atr * 0.25, 1650 * rr(2.3, 3.2)); spine.push(u - rr(0.3, 1.5)); vols.push(1650 * rr(2.0, 2.8)); u = spine[spine.length - 1]; }
+  else if (intent === 'follow') { ramp(u - rr(2, 4.5), ri(5, 8), atr * 0.10, 1000); spine.push(u + rr(0.2, 1.2)); vols.push(1100); u = spine[spine.length - 1]; }
+  else { ramp(u + rr(5, 9), ri(2, 4), atr * 0.22, 1650 * rr(1.4, 1.9)); spine.push(u - rr(0.5, 2)); vols.push(1650 * rr(1.3, 1.8)); u = spine[spine.length - 1]; }
+
+  const bars = spineToBars(spine, vols, k, anchor, atr, null, 60);
+  const atrCalc = trueRangeATR(bars.slice(-30, -3));
+  const uC = b => k * (b.c - anchor), uHi = b => Math.max(k * (b.h - anchor), k * (b.l - anchor)), uLo = b => Math.min(k * (b.h - anchor), k * (b.l - anchor));
+  const m20 = mean(bars.slice(-20).map(uC));
+  const last3 = bars.slice(-3), prior20 = bars.slice(-23, -3);
+  const f = {
+    stretch: (uC(bars[bars.length - 1]) - m20) / atrCalc,
+    climax: Math.max.apply(null, last3.map(b => b.h - b.l)) / atrCalc,
+    volRatio: mean(last3.map(b => b.v)) / (mean(prior20.map(b => b.v)) || 1),
+    contraction: mean(bars.slice(-5).map(b => b.h - b.l)) / atrCalc,
+    atr: atrCalc, legs: legs + 1
+  };
+  const truth = classifyTrend(f);
+
+  const post = [], pv = [];
+  const ramp2 = (to, n, wob, vb) => { const from = u; for (let i = 1; i <= n; i++) { post.push(from + (to - from) * i / n + nrand() * wob); pv.push(Math.max(150, vb * (0.75 + Math.random() * 0.5))); } u = to; };
+  if (truth === 'fade') ramp2(u - rr(12, 26), ri(15, 19), atr * 0.3, 2000);
+  else if (truth === 'follow') ramp2(u + rr(9, 20), ri(15, 19), atr * 0.3, 1800);
+  else { const c = u; for (let i = 0; i < 18; i++) { post.push(c + nrand() * atr * 0.9); pv.push(1400 * (0.7 + Math.random() * 0.6)); } u = post[post.length - 1]; }
+  const outBars = spineToBars(post, pv, k, anchor, atr, bars[bars.length - 1].c, 60 + bars.length);
+
+  const decision = bars.length, all = bars.concat(outBars);
+  const lastBar = bars[decision - 1];
+  let entryIdx = decision - 1;
+  let entryNote = 'Entry is at market on the decision bar close, with the trend.';
+  if (truth === 'fade') {
+    const c3 = bars.slice(-3).slice().sort((a, b) => (b.h - b.l) - (a.h - a.l))[0];
+    const mid = (c3.h + c3.l) / 2;
+    for (let i = decision; i < Math.min(all.length, decision + 8); i++) {
+      if (k > 0 ? all[i].c < mid : all[i].c > mid) { entryIdx = i; break; }
+    }
+    entryNote = 'Entry is the trigger — the first close back through the middle of the climax bar, at ' + all[entryIdx].t + '. Shorting the spike itself is not this trade.';
+  }
+  const entry = all[entryIdx].c;
+  const climaxExt = k > 0 ? Math.max.apply(null, bars.slice(-4).map(b => b.h)) : Math.min.apply(null, bars.slice(-4).map(b => b.l));
+  const pullExt = k > 0 ? Math.min.apply(null, bars.slice(-9).map(b => b.l)) : Math.max.apply(null, bars.slice(-9).map(b => b.h));
+  const trendUp = k > 0;
+  const side = truth === 'fade' ? (trendUp ? 'Short' : 'Long') : (trendUp ? 'Long' : 'Short');
+
+  let stops = [];
+  if (truth === 'fade') {
+    stops = [
+      { key: 'struct', label: '3 ticks beyond the climax ' + (trendUp ? 'high' : 'low'), price: roundTick(climaxExt + k * 3 * SPEC.tick), note: 'Structural — if the climax extreme trades through, the trend never finished.' },
+      { key: 'tight', label: 'Just past the last bar’s extreme', price: roundTick((trendUp ? lastBar.h : lastBar.l) + k * SPEC.tick), note: 'Inside a climax bar’s noise. This is the classic way to be right and still lose.' },
+      { key: 'flat', label: 'A flat 10 points from entry', price: roundTick(entry + (side === 'Long' ? -10 : 10)), note: 'Arbitrary. In a climax, volatility is at its highest — a fixed number means the least here.' }
+    ];
+  } else if (truth === 'follow') {
+    stops = [
+      { key: 'struct', label: '3 ticks beyond the pullback ' + (trendUp ? 'low' : 'high'), price: roundTick(pullExt - k * 3 * SPEC.tick), note: 'Structural — the pullback failing is what would say the trend is over.' },
+      { key: 'tight', label: 'Just past the last bar’s extreme', price: roundTick((trendUp ? lastBar.l : lastBar.h) - k * SPEC.tick), note: 'A one-bar stop in a trend that breathes. It gets taken by noise.' },
+      { key: 'flat', label: 'A flat 10 points from entry', price: roundTick(entry + (side === 'Long' ? -10 : 10)), note: 'Ignores the structure entirely.' }
+    ];
+  }
+
+  return {
+    family: 'trend', k: k, level: null, atr: atrCalc, bars: all, decision: decision, trendUp: trendUp,
+    truth: truth, facts: f, side: truth === 'none' ? null : side, entry: entry, entryIdx: entryIdx, entryNote: entryNote,
+    sweep: climaxExt, stops: stops,
+    title: (trendUp ? 'An uptrend' : 'A downtrend') + ' has run ' + f.legs + ' legs. This is the current bar.',
+    question: 'Is this the end of the move, or a pause in it?',
+    options: [
+      { key: 'fade', label: 'Exhaustion', desc: 'the trend is finishing — fade it' },
+      { key: 'follow', label: 'Continuation', desc: 'this is a pause — go with the trend' },
+      { key: 'none', label: 'No trade', desc: 'the evidence disagrees with itself' }
+    ]
+  };
+}
+
+function newScenario() {
+  clearInterval(PL.timer);
+  // every 4th scenario, re-serve something you got wrong until you get it right
+  const due = PL.misses.filter(m => PL.mode === 'mixed' || m.family === PL.mode ||
+    (PL.mode === 'support' && m.family === 'support') || (PL.mode === 'resistance' && m.family === 'resistance'));
+  if (due.length && PL.sinceReview >= 3) {
+    PL.sinceReview = 0; PL.isReview = true;
+    PL.sc = due[0]; PL.step = 'call'; PL.call = null; PL.stopPick = null; PL.reveal = 0;
+    renderPattern();
+    return;
+  }
+  PL.isReview = false; PL.sinceReview++;
+  const fam = PL.mode === 'mixed' ? ['support', 'resistance', 'trend'][ri(0, 2)] : PL.mode;
+  const intents = fam === 'trend' ? ['fade', 'follow', 'none'] : ['trap', 'real', 'none'];
+  const want = intents[Math.random() < 0.42 ? 0 : (Math.random() < 0.66 ? 1 : 2)];
+  let sc = null;
+  for (let attempt = 0; attempt < 25; attempt++) {
+    sc = fam === 'trend' ? buildTrendScenario(want) : buildLevelScenario(fam, want);
+    if (sc.truth === want || (want === 'none' && sc.truth === 'none')) break;
+  }
+  PL.sc = sc; PL.step = 'call'; PL.call = null; PL.stopPick = null; PL.reveal = 0;
+  renderPattern();
+}
+
+/* ---------- rendering ---------- */
+const TELL_LABEL = {
+  ext: ['Extension past the level', f => f.ext.toFixed(2) + ' pts · ' + f.extATR.toFixed(2) + '× ATR'],
+  closes: ['Closes beyond the level', f => String(f.closesBeyond)],
+  vol: ['Volume vs the 20 bars before', f => f.volRatio.toFixed(2) + '×'],
+  time: ['Bars spent beyond it', f => String(f.barsBeyond)],
+  stretch: ['Stretch from the 20-bar mean', f => f.stretch.toFixed(2) + '× ATR'],
+  climax: ['Biggest of the last 3 bars', f => f.climax.toFixed(2) + '× ATR'],
+  range: ['Average range, last 5 bars', f => f.contraction.toFixed(2) + '× ATR']
+};
+
+function renderPattern() {
+  const sc = PL.sc; if (!sc) return;
+  $('#dTitle').innerHTML = (PL.isReview ? '<span class="tag" style="border-color:var(--warn);color:var(--warn);margin-right:6px">review</span>' : '') + esc(sc.title);
+  $('#dPhase').textContent = PL.step === 'call' ? 'decision point — what now?' : (PL.step === 'stop' ? 'where does your risk go?' : 'outcome');
+
+  // the tells
+  const aWord = sc.family === 'trend' ? 'exhaustion' : 'failed break';
+  const bWord = sc.family === 'trend' ? 'continuation' : 'real break';
+  if (PL.hard && PL.step === 'call') {
+    $('#dFacts').innerHTML = '<p class="hint" style="margin:0;line-height:1.7">' +
+      '<b style="color:var(--ink)">Measurements hidden.</b><br>Read it off the chart: how far past the level did it go relative to the bars around it, how many candles <i>closed</i> beyond, did the volume bars expand or stay ordinary, and how long has it been content to sit there?<br><br>' +
+      'The numbers appear as soon as you commit — that is the point. On a live chart nobody hands you a table.</p>';
+  } else $('#dFacts').innerHTML = sc.facts.votes.map(v => {
+    const meta = TELL_LABEL[v[0]];
+    const w = v[1] === 'trap' ? aWord : v[1] === 'real' ? bWord : 'inconclusive';
+    return '<div class="tell"><span class="tl">' + meta[0] + '</span><span><span class="tv">' + meta[1](sc.facts) + '</span> ' +
+      '<span class="tw t-' + v[1] + '">' + w + '</span></span></div>';
+  }).join('') + (sc.family !== 'trend'
+    ? '<div class="tell"><span class="tl">Level tested before the break</span><span class="tv">' + sc.facts.tests + '×</span></div>'
+    : '') +
+    '<p class="hint" style="margin:8px 0 0">ATR here is ' + sc.atr.toFixed(2) + ' pts — that is the yardstick. Points mean nothing on their own.</p>' +
+    (PL.hard && PL.step !== 'call' ? '<p class="hint" style="margin:6px 0 0;color:var(--accent)">Revealed after your call.</p>' : '');
+
+  // the question
+  if (PL.step === 'call') {
+    $('#dQTitle').textContent = sc.question;
+    $('#dOptions').innerHTML = sc.options.map(o =>
+      '<button class="opt" data-call="' + o.key + '"><b>' + o.label + '</b><span>' + o.desc + '</span></button>').join('');
+  } else if (PL.step === 'stop') {
+    $('#dQTitle').textContent = 'You are ' + sc.side.toLowerCase() + ' from ' + px(sc.entry) + '. Where is the stop?';
+    $('#dOptions').innerHTML = (sc.entryNote ? '<p class="hint" style="margin:-2px 0 10px">' + esc(sc.entryNote) + '</p>' : '') + sc.stops.map(s =>
+      '<button class="opt" data-stop="' + s.key + '"><b>' + s.label + '</b><span>' + px(s.price) + ' · risking ' + Math.abs(sc.entry - s.price).toFixed(2) + ' pts</span></button>').join('');
+  } else {
+    $('#dQTitle').textContent = 'Next one';
+    $('#dOptions').innerHTML = '<button class="btn primary wide" id="dNext">New scenario ▸</button>' +
+      '<p class="hint" style="margin:10px 0 0">Chasing accuracy is the wrong goal here. The goal is that your reason for the call matches the four tells — being right for the wrong reason is what stops working.</p>';
+  }
+  drawDrillChart();
+  renderPatternStats();
+}
+
+function drawDrillChart() {
+  const sc = PL.sc, c = $('#dChart'); if (!sc || !c) return;
+  const dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight;
+  if (!w) return;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+
+  const shown = sc.bars.slice(0, sc.decision + PL.reveal);
+  const padR = 58, padB = 20, x0 = 6, x1 = w - padR, y0 = 8;
+  const volH = Math.max(34, Math.min(56, h * 0.16));
+  const yVol = h - padB, y1 = yVol - volH - 8;
+  const plotW = x1 - x0, plotH = y1 - y0;
+  let lo = Infinity, hi = -Infinity;
+  for (const b of shown) { if (b.l < lo) lo = b.l; if (b.h > hi) hi = b.h; }
+  if (sc.level != null) { lo = Math.min(lo, sc.level); hi = Math.max(hi, sc.level); }
+  if (PL.step === 'reveal' && PL.stopPick) { const s = sc.stops.find(x => x.key === PL.stopPick); if (s) { lo = Math.min(lo, s.price); hi = Math.max(hi, s.price); } }
+  const pad = Math.max((hi - lo) * 0.07, 0.5); lo -= pad; hi += pad;
+  const bw = plotW / Math.max(shown.length, sc.decision + 18);
+  const Y = p => y1 - (p - lo) / (hi - lo) * plotH;
+  const X = i => x0 + i * bw + bw / 2;
+
+  // future zone tint
+  g.fillStyle = 'rgba(255,255,255,.022)';
+  g.fillRect(X(sc.decision) - bw / 2, y0, plotW - (X(sc.decision) - bw / 2 - x0), plotH);
+
+  // grid + axis
+  const range = hi - lo;
+  let step = Math.pow(10, Math.floor(Math.log10(range / 4)));
+  const m = range / 4 / step; step *= m > 5 ? 10 : m > 2 ? 5 : m > 1 ? 2 : 1;
+  g.font = '10px ' + css('--mono'); g.textBaseline = 'middle'; g.textAlign = 'left';
+  for (let p = Math.ceil(lo / step) * step; p < hi; p += step) {
+    g.strokeStyle = css('--grid'); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x0, Math.round(Y(p)) + .5); g.lineTo(x1, Math.round(Y(p)) + .5); g.stroke();
+    g.fillStyle = css('--muted'); g.fillText(p.toFixed(step < 1 ? 2 : 0), x1 + 6, Y(p));
+  }
+
+  // the level
+  if (sc.level != null) {
+    const y = Math.round(Y(sc.level)) + .5;
+    g.strokeStyle = '#c3c2b7'; g.lineWidth = 1.5; g.setLineDash([6, 4]);
+    g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke(); g.setLineDash([]);
+    g.fillStyle = '#c3c2b7'; g.font = '10px ' + css('--mono'); g.textAlign = 'left'; g.textBaseline = 'bottom';
+    g.fillText('level ' + px(sc.level) + ' · tested ' + sc.facts.tests + '×', x0 + 4, y - 3);
+  }
+
+  // candles
+  const upC = css('--up'), dnC = css('--down'), bodyW = Math.max(1.5, Math.min(bw * 0.66, 12));
+  for (let i = 0; i < shown.length; i++) {
+    const b = shown[i], x = X(i), up = b.c >= b.o, future = i >= sc.decision;
+    g.strokeStyle = up ? upC : dnC; g.fillStyle = up ? upC : dnC;
+    g.globalAlpha = future ? 1 : 0.92;
+    g.lineWidth = Math.max(1, Math.min(bodyW * 0.18, 2));
+    g.beginPath(); g.moveTo(Math.round(x) + .5, Y(b.h)); g.lineTo(Math.round(x) + .5, Y(b.l)); g.stroke();
+    const top = Math.min(Y(b.o), Y(b.c));
+    g.fillRect(x - bodyW / 2, top, bodyW, Math.max(Math.abs(Y(b.c) - Y(b.o)), 1.2));
+    g.globalAlpha = 1;
+  }
+
+  // volume pane — the tell you can actually see
+  const preVolAvg = mean(sc.bars.slice(Math.max(0, sc.decision - 25), Math.max(1, sc.decision - 6)).map(b => b.v)) || 1;
+  const vMax = Math.max.apply(null, shown.map(b => b.v)) || 1;
+  for (let i = 0; i < shown.length; i++) {
+    const b = shown[i], hgt = Math.max(1, b.v / vMax * volH);
+    g.fillStyle = b.c >= b.o ? upC : dnC;
+    g.globalAlpha = b.v > preVolAvg * 1.6 ? 0.85 : 0.4;
+    g.fillRect(X(i) - bodyW / 2, yVol - hgt, bodyW, hgt);
+  }
+  g.globalAlpha = 1;
+  const avgY = yVol - (preVolAvg / vMax * volH);
+  g.strokeStyle = css('--muted'); g.setLineDash([3, 3]); g.lineWidth = 1;
+  g.beginPath(); g.moveTo(x0, Math.round(avgY) + .5); g.lineTo(x1, Math.round(avgY) + .5); g.stroke(); g.setLineDash([]);
+  g.fillStyle = css('--muted'); g.font = '9px ' + css('--mono'); g.textAlign = 'left'; g.textBaseline = 'middle';
+  g.fillText('avg vol', x1 + 6, avgY);
+
+  // "you are here" — drops to the bottom if the sweep marker is sitting near the top
+  const dx = Math.round(X(sc.decision) - bw / 2) + .5;
+  g.strokeStyle = 'rgba(255,255,255,.45)'; g.setLineDash([4, 4]); g.lineWidth = 1;
+  g.beginPath(); g.moveTo(dx, y0); g.lineTo(dx, yVol); g.stroke(); g.setLineDash([]);
+  g.fillStyle = 'rgba(255,255,255,.6)'; g.font = '10px system-ui'; g.textAlign = 'right';
+  const sweepNearTop = sc.family !== 'trend' && sc.sweepIdx != null &&
+    Math.abs(X(sc.sweepIdx) - dx) < 70 && Y(sc.sweep) < y0 + 40;
+  if (sweepNearTop) { g.textBaseline = 'bottom'; g.fillText('you are here', dx - 4, y1 - 3); }
+  else { g.textBaseline = 'top'; g.fillText('you are here', dx - 4, y0 + 2); }
+
+  // sweep marker
+  if (sc.family !== 'trend' && sc.sweepIdx != null) {
+    const sy = Y(sc.sweep), sx = X(sc.sweepIdx);
+    g.fillStyle = css('--warn');
+    g.beginPath();
+    const dn = sc.k > 0 ? 1 : -1;
+    g.moveTo(sx, sy + dn * 4); g.lineTo(sx - 4, sy + dn * 10); g.lineTo(sx + 4, sy + dn * 10);
+    g.closePath(); g.fill();
+    g.font = '9px system-ui'; g.textAlign = 'right'; g.textBaseline = 'middle';
+    g.fillText('sweep ' + px(sc.sweep), sx - 7, sy + dn * 8);
+  }
+
+  // entry / stop once revealed
+  if (PL.step === 'reveal' && sc.side) {
+    const line = (p, col, lab, left) => {
+      const y = Math.round(Y(p)) + .5;
+      g.strokeStyle = col; g.setLineDash([3, 3]); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke(); g.setLineDash([]);
+      g.fillStyle = col; g.font = '10px ' + css('--mono'); g.textBaseline = 'bottom';
+      g.textAlign = left ? 'left' : 'right';
+      g.fillText(lab, left ? x0 + 4 : x1 - 3, y - 2);
+    };
+    const sp = sc.stops.find(x => x.key === PL.stopPick);
+    const close = sp && Math.abs(Y(sp.price) - Y(sc.entry)) < 14;
+    line(sc.entry, '#ffffff', sc.side + ' from ' + px(sc.entry), close);
+    if (sp) line(sp.price, dnC, 'your stop ' + px(sp.price), false);
+  }
+}
+
+/* ---------- answering ---------- */
+function answerCall(key) {
+  const sc = PL.sc; if (!sc || PL.step !== 'call') return;
+  PL.call = key;
+  const ok = key === sc.truth;
+  PL.asked++; if (ok) { PL.correct++; PL.streak++; PL.best = Math.max(PL.best, PL.streak); } else PL.streak = 0;
+  const kind = patternName(sc);
+  const st = PL.stats[kind] || (PL.stats[kind] = { n: 0, ok: 0 });
+  st.n++; if (ok) st.ok++;
+  if (PL.hard) { PL.hardAsked++; if (ok) PL.hardCorrect++; }
+  // miss queue: wrong reads come back until you get them right
+  const idx = PL.misses.indexOf(sc);
+  if (ok) { if (idx >= 0) PL.misses.splice(idx, 1); }
+  else if (idx < 0) { PL.misses.push(sc); if (PL.misses.length > 12) PL.misses.shift(); }
+  else { PL.misses.push(PL.misses.splice(idx, 1)[0]); }
+  saveState();
+
+  $$('#dOptions .opt').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.call === sc.truth) b.classList.add('right');
+    else if (b.dataset.call === key) b.classList.add('wrong');
+  });
+  $('#dFeedback').innerHTML = callFeedback(sc, key, ok);
+  renderPatternStats();
+
+  if (sc.truth === 'none') { PL.step = 'reveal'; revealOutcome(); }
+  else { PL.step = 'stop'; setTimeout(() => renderPattern(), 900); }
+}
+
+function answerStop(key) {
+  const sc = PL.sc; if (!sc || PL.step !== 'stop') return;
+  PL.stopPick = key; PL.stopN++; if (key === 'struct') PL.stopOk++; saveState();
+  PL.step = 'reveal';
+  renderPattern();
+  revealOutcome();
+}
+
+function patternName(sc) {
+  if (sc.family === 'trend') return sc.truth === 'fade' ? 'Exhaustion reversal' : sc.truth === 'follow' ? 'Trend continuation' : 'Trend — no trade';
+  const base = sc.family === 'support' ? 'breakdown' : 'breakout';
+  return sc.truth === 'trap' ? 'Failed ' + base : sc.truth === 'real' ? 'Real ' + base : 'Level — no trade';
+}
+
+function revealOutcome() {
+  clearInterval(PL.timer);
+  PL.reveal = 0;
+  PL.timer = setInterval(() => {
+    PL.reveal++;
+    drawDrillChart();
+    if (PL.sc.decision + PL.reveal >= PL.sc.bars.length) { clearInterval(PL.timer); finishReveal(); }
+  }, 55);
+}
+
+function simStop(sc, stop) {
+  const dir = sc.side === 'Long' ? 1 : -1;
+  const risk = Math.max(SPEC.tick, Math.abs(sc.entry - stop.price));
+  let mfe = 0, stoppedAt = null;
+  for (let i = (sc.entryIdx != null ? sc.entryIdx + 1 : sc.decision); i < sc.bars.length; i++) {
+    const b = sc.bars[i];
+    const hit = sc.side === 'Long' ? b.l <= stop.price : b.h >= stop.price;
+    if (hit) { stoppedAt = b.t; break; }
+    const fav = ((sc.side === 'Long' ? b.h : b.l) - sc.entry) * dir;
+    if (fav > mfe) mfe = fav;
+  }
+  return { risk: risk, stoppedAt: stoppedAt, mfe: mfe, R: stoppedAt ? -1 : mfe / risk };
+}
+
+function finishReveal() {
+  const sc = PL.sc;
+  let html = $('#dFeedback').innerHTML;
+  if (sc.truth === 'none') {
+    html += '<div class="card" style="margin-top:10px"><h3>What happened next</h3>' +
+      '<p class="hint" style="margin:0;font-size:13px;line-height:1.7">Nothing worth paying for. Price went sideways — which is exactly what a set of tells that disagree with each other is warning you about. ' +
+      'Every trader has a "no trade" number, and the ones who last have a high one. Passing on this is not caution, it is selection.</p></div>';
+  } else {
+    const rows = sc.stops.map(s => {
+      const r = simStop(sc, s);
+      const mine = s.key === PL.stopPick;
+      const res = r.stoppedAt
+        ? '<b class="neg">Stopped out at ' + r.stoppedAt + ' · −1R</b>'
+        : '<b class="pos">Survived · reached +' + r.R.toFixed(2) + 'R</b>';
+      return '<div class="stopcard' + (mine ? ' mine' : '') + '">' +
+        '<div class="row wrap" style="justify-content:space-between;gap:6px">' +
+          '<b style="font-size:13px">' + (mine ? '▸ ' : '') + esc(s.label) + '</b>' +
+          '<span class="num" style="font-size:12.5px">' + px(s.price) + '</span></div>' +
+        '<div class="hint" style="margin:3px 0 5px">risking ' + r.risk.toFixed(2) + ' pts · ' + fmt$(r.risk * SPEC.pointValue, 0) + ' per contract' + (mine ? ' · your choice' : '') + '</div>' +
+        '<div style="font-size:12.5px;margin-bottom:4px">' + res + '</div>' +
+        '<div class="hint">' + esc(s.note) + '</div></div>';
+    }).join('');
+    const structR = simStop(sc, sc.stops[0]);
+    const tightR = simStop(sc, sc.stops[1]);
+    const mineR = simStop(sc, sc.stops.find(x => x.key === PL.stopPick));
+    let lesson;
+    if (PL.stopPick === 'struct') {
+      lesson = 'You put the risk where the idea actually lives. That is the whole game: a stop is not a number you can afford, it is the price that proves you wrong.';
+      if (!tightR.stoppedAt && tightR.R > structR.R) {
+        lesson += ' Worth sitting with, though: the tight stop survived this one and paid ' + tightR.R.toFixed(2) + 'R against your ' + structR.R.toFixed(2) + 'R, because it risked less. That is the seduction — when a tight stop works it looks brilliant. The case for yours is the other sixty trades, where the sweep’s own noise takes the tight one out for a full loss and you never see the move at all.';
+      }
+    } else if (PL.stopPick === 'tight') {
+      lesson = mineR.stoppedAt
+        ? 'There it is: your stop was hit at ' + mineR.stoppedAt + ' for a full loss — on a read that was ' + (PL.call === sc.truth ? 'correct' : 'wrong anyway') + ', and that ' + (structR.stoppedAt ? 'still would not have worked with more room' : 'paid ' + structR.R.toFixed(2) + 'R with the stop just ' + (structR.risk - mineR.risk).toFixed(2) + ' points further away') + '. Being right and getting stopped is not bad luck, it is a stop placed inside the noise the pattern is made of.'
+        : 'It survived, and because it risked ' + (structR.risk - mineR.risk).toFixed(2) + ' points less it paid ' + mineR.R.toFixed(2) + 'R against the structural stop’s ' + structR.R.toFixed(2) + 'R. Note how good that feels — that is exactly why traders keep using it. Repeat it enough times and the losses come from the trades where price wicks back through the sweep before going your way, which on this pattern is most of them.';
+    } else {
+      lesson = 'The flat stop risked ' + (mineR.risk - structR.risk).toFixed(2) + ' points more than the structural one for the same idea, so the same move paid ' + (structR.R > 0 && mineR.R > 0 ? 'you ' + mineR.R.toFixed(2) + 'R instead of ' + structR.R.toFixed(2) + 'R' : 'less R') + '. A fixed number cannot know where this particular level is. Where the stop goes is set by the chart; how many contracts you take is the thing that adjusts.';
+    }
+    if (structR.stoppedAt) {
+      lesson += ' And note the structural stop lost here too — the read was right and the trade still did not work. That is normal, and it is exactly why size is calculated from the stop rather than the stop being squeezed to fit the size you wanted.';
+    }
+    html += '<div class="card" style="margin-top:10px"><h3>What each stop would have done</h3>' +
+      '<div class="stopgrid">' + rows + '</div>' +
+      '<p class="hint" style="margin:10px 0 0;font-size:13px;line-height:1.7">' + lesson + '</p></div>';
+  }
+  $('#dFeedback').innerHTML = html;
+  PL.step = 'reveal';
+  renderPattern();
+}
+
+function callFeedback(sc, pick, ok) {
+  const f = sc.facts;
+  const aWord = sc.family === 'trend' ? 'exhaustion' : 'a failed break';
+  const bWord = sc.family === 'trend' ? 'continuation' : 'a real break';
+  const forA = f.votes.filter(v => v[1] === 'trap').length, forB = f.votes.filter(v => v[1] === 'real').length;
+  const truthName = patternName(sc);
+
+  let why;
+  if (sc.family !== 'trend') {
+    const isSup = sc.family === 'support';
+    const dirWord = isSup ? 'below' : 'above';
+    const extremeWord = isSup ? 'low' : 'high';
+    const aggressor = isSup ? 'sellers' : 'buyers';
+    const underOver = isSup ? 'under' : 'over';
+    const actWord = isSup ? 'Buying' : 'Selling';
+    if (sc.truth === 'trap') {
+      why = 'The break travelled <b>' + f.ext.toFixed(2) + ' pts (' + f.extATR.toFixed(2) + '× ATR)</b> ' + dirWord + ' a level that had already held <b>' + f.tests + '×</b>, closed ' + dirWord + ' it only <b>' + f.closesBeyond + '</b> time' + (f.closesBeyond === 1 ? '' : 's') + ', spent <b>' + f.barsBeyond + ' bars</b> there, and did it on <b>' + f.volRatio.toFixed(2) + '×</b> normal volume. ' +
+        'That is the signature of resting stops being triggered, not of new ' + aggressor + ' arriving. The obvious ' + extremeWord + ' is obvious to everyone — the orders ' + underOver + ' it are the whole reason price went there. ' +
+        'The trade is the <b>reclaim</b>: you wait for a close back inside the level, and the ' + extremeWord + ' of the sweep is your risk. ' + actWord + ' while it is still ' + dirWord + ' the level is how this pattern bankrupts people who read it correctly.';
+    } else if (sc.truth === 'real') {
+      why = 'The break travelled <b>' + f.ext.toFixed(2) + ' pts (' + f.extATR.toFixed(2) + '× ATR)</b>, closed ' + dirWord + ' the level <b>' + f.closesBeyond + '</b> times, held there for <b>' + f.barsBeyond + ' bars</b>, and ran on <b>' + f.volRatio.toFixed(2) + '×</b> volume. ' +
+        'Past roughly 1.5× ATR with repeated closes beyond, you are not watching stops being run — you are watching the market agree on a new price. ' +
+        'Fading this is the single most expensive habit in intraday trading, because it feels exactly like the trade that worked last time. If you want in, the entry is the retest of the level from the other side, not a guess at the ' + extremeWord + '.';
+    } else {
+      why = 'The four tells disagree: <b>' + forA + '</b> point to ' + aWord + ', <b>' + forB + '</b> point to ' + bWord + '. ' +
+        'Extension ' + f.extATR.toFixed(2) + '× ATR, ' + f.closesBeyond + ' closes beyond, ' + f.barsBeyond + ' bars beyond, ' + f.volRatio.toFixed(2) + '× volume. ' +
+        'When the evidence is split, the trade is a coin flip with commission attached. "No trade" is a real answer and it is scored like one here.';
+    }
+  } else {
+    if (sc.truth === 'fade') {
+      why = 'Price is <b>' + f.stretch.toFixed(2) + '× ATR</b> above its own 20-bar mean after ' + f.legs + ' legs, the last push printed a bar <b>' + f.climax.toFixed(2) + '× ATR</b> tall on <b>' + f.volRatio.toFixed(2) + '×</b> volume, and the last five bars are averaging <b>' + f.contraction.toFixed(2) + '× ATR</b>. ' +
+        'Stretch plus range expansion plus a volume spike is a move ending, not beginning — that is late buyers being filled by the people who were early. ' +
+        'But note what it still is not: a reason to short a spike. The trigger is a close back through the climax bar, and the climax extreme is your risk. Without the trigger you are catching the knife.';
+    } else if (sc.truth === 'follow') {
+      why = 'Only <b>' + f.stretch.toFixed(2) + '× ATR</b> from the 20-bar mean, the biggest recent bar is <b>' + f.climax.toFixed(2) + '× ATR</b>, volume is <b>' + f.volRatio.toFixed(2) + '×</b> and the last five bars average <b>' + f.contraction.toFixed(2) + '× ATR</b>. ' +
+        'That is a pullback, not a reversal: ranges are contracting and volume is drying up, which means the other side is not actually showing up — they are just absent for a moment. ' +
+        'Contraction into a trend resolves with the trend far more often than against it. Trade it in the direction of the legs, with risk under the pullback.';
+    } else {
+      why = 'Split evidence — <b>' + forA + '</b> tells point to exhaustion, <b>' + forB + '</b> to continuation. Stretch ' + f.stretch.toFixed(2) + '× ATR, biggest bar ' + f.climax.toFixed(2) + '× ATR, volume ' + f.volRatio.toFixed(2) + '×. ' +
+        'A trend that is merely extended is not a reversal, and a pause that is not contracting is not a continuation. This is a wait.';
+    }
+  }
+
+  const head = ok
+    ? '<div class="banner ok"><b>Correct — ' + truthName.toLowerCase() + '.</b></div>'
+    : (pick === 'none'
+      ? '<div class="banner warn"><b>You passed. It was ' + truthName.toLowerCase() + '.</b> Passing costs nothing but the opportunity — still worth knowing what you left.</div>'
+      : '<div class="banner stop"><b>Not this one — it was ' + truthName.toLowerCase() + '.</b></div>');
+
+  return head + '<div class="card"><h3>Why</h3><p style="margin:0;font-size:13.5px;line-height:1.75">' + why + '</p></div>';
+}
+
+function renderPatternStats() {
+  $('#dScore').textContent = PL.correct + ' / ' + PL.asked;
+  $('#dStreak').textContent = PL.streak + (PL.best > PL.streak ? ' (best ' + PL.best + ')' : '');
+  $('#dReview').textContent = PL.misses.length;
+  $('#dReviewChip').hidden = PL.misses.length === 0;
+  const keys = Object.keys(PL.stats);
+  if (!keys.length) { $('#dStats').innerHTML = '<p class="hint" style="margin:0">Call a few scenarios and your blind spot shows up here — most people are far better at spotting real breaks than failed ones, or the reverse, and never notice.</p>'; return; }
+  $('#dStats').innerHTML = keys.sort().map(k => {
+    const s = PL.stats[k], pct = s.n ? s.ok / s.n * 100 : 0;
+    return '<div style="margin-bottom:9px"><div class="row" style="justify-content:space-between;font-size:12.5px">' +
+      '<span>' + esc(k) + '</span><b class="num">' + pct.toFixed(0) + '% <span class="hint">· ' + s.ok + '/' + s.n + '</span></b></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + (pct >= 70 ? 'var(--up)' : pct >= 45 ? 'var(--warn)' : 'var(--down)') + '"></div></div></div>';
+  }).join('') +
+    (PL.hardAsked ? '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><div class="row" style="justify-content:space-between;font-size:12.5px">' +
+      '<span>Hard mode — chart only, no numbers</span><b class="num">' + (PL.hardCorrect / PL.hardAsked * 100).toFixed(0) + '% <span class="hint">· ' + PL.hardCorrect + '/' + PL.hardAsked + '</span></b></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + (PL.hardCorrect / PL.hardAsked * 100) + '%;background:var(--warn)"></div></div>' +
+      '<p class="hint" style="margin:6px 0 0">This is the number that matters. The easy-mode score measures whether you can read a table.</p></div>' : '') +
+    (PL.stopN ? '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><div class="row" style="justify-content:space-between;font-size:12.5px">' +
+      '<span>Stop placed at the structure</span><b class="num">' + (PL.stopOk / PL.stopN * 100).toFixed(0) + '% <span class="hint">· ' + PL.stopOk + '/' + PL.stopN + '</span></b></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + (PL.stopOk / PL.stopN * 100) + '%"></div></div></div>' : '');
+}
+
+
+/* ============================================================
+   Phone: one-handed trading bar
+   ============================================================ */
+function isPhone() { return window.matchMedia('(max-width:900px)').matches; }
+
+function syncMobileBar() {
+  const on = isPhone() && !$('#panel-sim').hidden;
+  document.body.classList.toggle('mobile-sim', on);
+  if (!on) return;
+  const P = S.position;
+  const qty = clamp(Math.round(+$('#qty').value || 1), 1, 20);
+  $('#mbQty').textContent = qty;
+  $('#mbPlay').textContent = S.playing ? '❚❚ Pause' : '▶ Play';
+
+  if (P) {
+    const pnl = openPnl();
+    const rNow = P.riskD ? pnl / P.riskD : 0;
+    $('#mbPos').innerHTML = '<b class="' + (P.side === 'Long' ? 'pos' : 'neg') + '">' + P.side + ' ' + P.qty + '</b>' +
+      ' <span class="num ' + sgnClass(pnl) + '">' + fmtSigned$(pnl) + '</span>' +
+      ' <span class="hint">· ' + rNow.toFixed(2) + 'R · stop ' + px(P.stop) + '</span>';
+    $('#mbRisk').textContent = '';
+  } else if (S.locked) {
+    $('#mbPos').innerHTML = '<b style="color:var(--down)">Locked out</b> <span class="hint">rule hit — done for the day</span>';
+    $('#mbRisk').textContent = '';
+  } else {
+    const stopPts = Math.max(SPEC.tick, +$('#stopPts').value || 4);
+    const tgtPts = Math.max(SPEC.tick, +$('#targetPts').value || 8);
+    const allowed = maxContracts(stopPts);
+    $('#mbPos').innerHTML = '<span class="flat">Flat</span>' +
+      (qty > allowed ? ' <b style="color:var(--down)">cap allows ' + allowed + '</b>' : '');
+    $('#mbRisk').textContent = 'stop ' + stopPts + ' · tgt ' + tgtPts + ' · risk ' +
+      fmt$(stopPts * SPEC.pointValue * qty, 0) + ' (' + (tgtPts / stopPts).toFixed(1) + ':1)';
+  }
+}
+
+function bindMobileBar() {
+  $('#mobileBar').addEventListener('click', e => {
+    const b = e.target.closest('[data-mb]'); if (!b) return;
+    const a = b.dataset.mb;
+    if (a === 'buy') openPosition('Long');
+    else if (a === 'sell') openPosition('Short');
+    else if (a === 'flatten') flatten();
+    else if (a === 'be') stopToBE();
+    else if (a === 'play') togglePlay();
+    else if (a === 'step') { pause(); stepBar(); }
+    else if (a === 'qty+' || a === 'qty-') {
+      const el = $('#qty');
+      el.value = clamp((+el.value || 1) + (a === 'qty+' ? 1 : -1), 1, 20);
+      renderRisk();
+    } else if (a === 'ticket') {
+      const t = $('#panel-sim aside');
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    syncMobileBar();
+  });
+  window.addEventListener('resize', syncMobileBar);
+  window.addEventListener('orientationchange', () => setTimeout(() => { syncMobileBar(); drawChart(); }, 250));
+}
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+function bind() {
+  $$('nav.tabs button').forEach(b => b.onclick = () => {
+    $$('nav.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    $$('.panel').forEach(p => p.hidden = p.id !== 'panel-' + b.dataset.tab);
+    if (b.dataset.tab === 'sim') requestAnimationFrame(drawChart);
+    syncMobileBar();
+    if (b.dataset.tab === 'journal') renderJournal();
+    if (b.dataset.tab === 'drills') { if (!PL.sc) newScenario(); else requestAnimationFrame(drawDrillChart); }
+  });
+
+  $$('[data-step]').forEach(b => b.onclick = () => {
+    const parts = b.dataset.step.split(':'), id = parts[0], d = +parts[1];
+    const el = $('#' + id);
+    const stepSize = id === 'qty' ? 1 : 0.25;
+    el.value = Math.max(+el.min || 0, (+el.value || 0) + d * stepSize).toFixed(id === 'qty' ? 0 : 2);
+    renderRisk();
+  });
+  ['qty', 'stopPts', 'targetPts'].forEach(id => $('#' + id).oninput = renderRisk);
+  ['lossLimit', 'maxTrades', 'enforceRules'].forEach(id => $('#' + id).onchange = () => { ruleCheck(); renderBanner(); });
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-adj]'); if (!t || !S.position) return;
+    const parts = t.dataset.adj.split(':');
+    S.position[parts[0]] = roundTick(S.position[parts[0]] + (+parts[1]) * SPEC.tick);
+    renderLive();
+  });
+
+  $('#btnBuy').onclick = () => openPosition('Long');
+  $('#btnSell').onclick = () => openPosition('Short');
+  $('#btnFlatten').onclick = flatten;
+  $('#btnReverse').onclick = reverse;
+  $('#btnBE').onclick = stopToBE;
+  $('#btnPlay').onclick = togglePlay;
+  $('#btnStep').onclick = () => { pause(); stepBar(); };
+  $('#btnNewSession').onclick = () => newSession(false);
+
+  $$('#speedSeg button').forEach(b => b.onclick = () => {
+    $$('#speedSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    S.speed = +b.dataset.sp;
+  });
+  $$('#lvlSeg button').forEach(b => b.onclick = () => {
+    const k = b.dataset.lvl;
+    LVL[k] = !LVL[k];
+    b.setAttribute('aria-pressed', String(LVL[k]));
+    drawChart(); renderLive(); saveState();
+  });
+  $('#setOR').onchange = () => { drawChart(); renderLive(); saveState(); };
+  $$('#tfSeg button').forEach(b => b.onclick = () => {
+    $$('#tfSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    S.tf = +b.dataset.tf; drawChart();
+  });
+  $('#dHard').onchange = e => { PL.hard = e.target.checked; $('#dFeedback').innerHTML = ''; newScenario(); saveState(); };
+  $$('#drillSeg button').forEach(b => b.onclick = () => {
+    $$('#drillSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    PL.mode = b.dataset.mode; $('#dFeedback').innerHTML = ''; newScenario();
+  });
+
+  // pattern lab answers (delegated — options are re-rendered every step)
+  document.addEventListener('click', e => {
+    const c = e.target.closest('[data-call]'); if (c) { answerCall(c.dataset.call); return; }
+    const s = e.target.closest('[data-stop]'); if (s) { answerStop(s.dataset.stop); return; }
+    if (e.target.closest('#dNext')) { $('#dFeedback').innerHTML = ''; newScenario(); }
+  });
+
+  ['fltDir', 'fltTag', 'fltSrc'].forEach(id => $('#' + id).onchange = renderJournal);
+  $('#btnAddTrade').onclick = toggleAddForm;
+  $('#btnExportCsv').onclick = exportCsv;
+  $('#btnExportJson').onclick = exportJson;
+  $('#btnExportJson2').onclick = exportJson;
+  $('#btnImportJson').onclick = () => $('#fileImport').click();
+  $('#btnImportJson2').onclick = () => $('#fileImport').click();
+  $('#fileImport').onchange = e => { if (e.target.files[0]) importJson(e.target.files[0]); e.target.value = ''; };
+  $('#tradesBody').addEventListener('input', e => {
+    const id = e.target.dataset.note; if (!id) return;
+    const t = S.trades.find(x => x.id === +id); if (t) { t.note = e.target.value; saveState(); }
+  });
+  $('#tradesBody').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    S.trades = S.trades.filter(t => t.id !== +b.dataset.del);
+    renderJournal(); saveState();
+  });
+
+  ['setPointVal', 'setComm', 'setSlip', 'setEquity', 'setAutoPause', 'setHideLevels'].forEach(id =>
+    $('#' + id).onchange = () => { readSettings(); renderAll(); saveState(); });
+  $('#setCvd').onchange = e => { document.documentElement.setAttribute('data-cvd', e.target.checked ? 'on' : 'off'); renderAll(); drawDrillChart(); saveState(); };
+  $('#setAutosave').onchange = () => { if (!autosaveOn()) forgetSaved(); else saveState(); saveStatus(); };
+  $('#btnForget').onclick = () => { forgetSaved(); toast('Saved data cleared from this browser.'); };
+  ['setBase', 'setVol', 'setSeed', 'setSess'].forEach(id => $('#' + id).onchange = () => toast('Takes effect on the next session.'));
+  $('#btnResetAll').onclick = () => {
+    if (!confirm('Delete the journal, pattern-lab stats and current session?')) return;
+    S.trades = []; PL.stats = {}; PL.misses = [];
+    PL.asked = PL.correct = PL.streak = PL.best = PL.stopN = PL.stopOk = PL.hardAsked = PL.hardCorrect = 0;
+    forgetSaved();
+    newSession(false); newScenario(); renderJournal(); saveStatus();
+  };
+
+  bindMobileBar();
+
+  const setHover = (e) => {
+    const r = cv.getBoundingClientRect();
+    const p = e.touches ? e.touches[0] : e;
+    S.hover = { x: p.clientX - r.left, y: p.clientY - r.top };
+    drawChart();
+  };
+  cv.addEventListener('mousemove', setHover);
+  cv.addEventListener('mouseleave', () => { S.hover = null; drawChart(); });
+  cv.addEventListener('touchstart', setHover, { passive: true });
+  cv.addEventListener('touchmove', setHover, { passive: true });
+  cv.addEventListener('touchend', () => { S.hover = null; drawChart(); });
+
+  document.addEventListener('keydown', e => {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.target.tagName === 'BUTTON' && e.key === ' ') return;
+    if ($('#panel-sim').hidden) return;
+    const k = e.key.toLowerCase();
+    if (k === 'b') { e.preventDefault(); openPosition('Long'); }
+    else if (k === 's') { e.preventDefault(); openPosition('Short'); }
+    else if (k === 'f') { e.preventDefault(); flatten(); }
+    else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); pause(); stepBar(); }
+  });
+
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawChart(); drawDrillChart(); renderJournal(); }, 120); });
+}
+
+/* ---------- boot ---------- */
+function showFatal(msg) {
+  const w = document.getElementById('jsWarn');
+  if (!w) return;
+  w.style.display = '';
+  w.innerHTML = '<b>Something broke while starting up.</b><br>' +
+    '<span class="num" style="font-size:12px;word-break:break-word">' + esc(msg) + '</span><br>' +
+    'Send me that message and I will fix it.';
+}
+window.addEventListener('error', e => showFatal((e.message || 'error') + (e.filename ? ' @' + e.lineno : '')));
+window.addEventListener('unhandledrejection', e => showFatal('promise: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)));
+
+try {
+  bind();
+  const restored = loadState();
+  saveStatus();
+  newSession(false);
+  newScenario();
+  if (restored && restored.trades) setTimeout(() => toast('Restored ' + restored.trades + ' trades from this browser.'), 500);
+  const w = document.getElementById('jsWarn');
+  if (w) w.style.display = 'none';
+  const settle = () => { if (cv.clientWidth > 0) { drawChart(); drawDrillChart(); renderJournal(); } };
+  syncMobileBar();
+  requestAnimationFrame(settle);
+  window.addEventListener('load', settle);
+  setTimeout(settle, 350);
+  setTimeout(settle, 1200);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) settle(); });
+  if (window.ResizeObserver) new ResizeObserver(() => { if (cv.clientWidth > 0) drawChart(); }).observe(cv.parentNode);
+} catch (err) {
+  showFatal(err && err.message ? err.message + ' — ' + (err.stack || '').split('\n')[1] : String(err));
+}
+</script>
+</body>
+</html>
