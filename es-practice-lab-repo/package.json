@@ -1,0 +1,43 @@
+{
+  "name": "es-practice-lab",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "license": "BUSL-1.1",
+  "author": "pedro",
+  "description": "A flight simulator for E-mini S&P 500 futures - bar-by-bar replay sim, live pattern-read trainer, and trade journal.",
+  "keywords": [
+    "trading",
+    "futures",
+    "simulator",
+    "market-replay",
+    "technical-analysis",
+    "react",
+    "typescript",
+    "vite",
+    "canvas"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx src/lib/propfirm.test.ts"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.19.2",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5"
+  }
+}
